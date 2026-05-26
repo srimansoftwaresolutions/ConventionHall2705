@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HY One – HY Nine – Sriman | Booking System</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        h1 {
+            font-size: 24px;
+            color: #333333;
+            margin-bottom: 5px;
+        }
+        h2 {
+            font-size: 18px;
+            color: #666666;
+            margin-bottom: 20px;
+            font-weight: 400;
+        }
+        p {
+            color: #777777;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+        .google-btn {
+            background-color: #ffffff;
+            color: #757575;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            transition: background-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .google-btn:hover {
+            background-color: #fafafa;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.12);
+        }
+        .google-btn svg {
+            margin-right: 12px;
+            width: 18px;
+            height: 18px;
+        }
+        .footer-note {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #999999;
+            border-top: 1px solid #eeeeee;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="login-container">
+    <div class="icon">🏛️</div>
+    <h1>HY One – HY Nine – Sriman</h1>
+    <h2>Booking System</h2>
+    <p>Sign in to manage hall bookings</p>
+    
+    <button class="google-btn" id="googleSignInBtn">
+        <svg aria-hidden="true" class="native" viewBox="0 0 18 18">
+            <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.47h4.84a4.14 4.14 0 0 1-1.8 2.71v2.26h2.91c1.7-1.56 2.69-3.86 2.69-6.6z"/>
+            <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.2l-2.91-2.26c-.8.54-1.83.86-3.05.86-2.34 0-4.33-1.58-5.04-3.71H.95v2.33A9 9 0 0 0 9 18z"/>
+            <path fill="#FBBC05" d="M3.96 10.69a5.41 5.41 0 0 1 0-3.38V4.98H.95a9 9 0 0 0 0 8.04l3.01-2.33z"/>
+            <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35L15 2.3A9 9 0 0 0 .95 4.98l3.01 2.33c.71-2.13 2.7-3.71 5.04-3.71z"/>
+        </svg>
+        Sign in with Google
+    </button>
+    
+    <div class="footer-note">
+        Access restricted to authorised staff only
+    </div>
+</div>
+
+<script>
+    const GOOGLE_CLIENT_ID = "872840152167-kfqbk32onvm6jrka8g39c2lq1v26ra4p.apps.googleusercontent.com";
+    const APPS_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxhEoj0t4VWH2H5XQNWxPNA3amGGXvQoi89pH7QbO-5aVWI-f2dNwFAYAo7I0pD5dEZFA/exec";
+
+    let tokenClient;
+
+    window.onload = function () {
+        // Initialize the standard Identity services 
+        google.accounts.id.initialize({
+            client_id: GOOGLE_CLIENT_ID,
+            callback: handleCredentialResponse
+        });
+
+        // Setup the token client flow which works cleanly with custom buttons via popups
+        tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: 'https://www.googleapis.com/auth/userinfo.email',
+            callback: (tokenResponse) => {
+                if (tokenResponse && tokenResponse.access_token) {
+                    // Fetch user info profile using the access token
+                    fetch(`https://www.googleapis.com/oauth2/v3/userinfo?access_token=${tokenResponse.access_token}`)
+                        .then(res => res.json())
+                        .then(userInfo => {
+                            validateEmailWithSheet(userInfo.email);
+                        })
+                        .catch(err => console.error("Error fetching user identity:", err));
+                }
+            }
+        });
+        
+        const loginButton = document.getElementById('googleSignInBtn');
+        if (loginButton) {
+            loginButton.addEventListener('click', function() {
+                if (window.location.protocol === 'file:') {
+                    alert("Notice: Google Auth cannot sign in directly from a local file protocol (file:///)\n\nPlease upload this code to your GitHub Pages site (https://srimansoftwaresolutions.github.io) to test it successfully.");
+                } else {
+                    // Triggers the compliant popup window
+                    tokenClient.requestAccessToken({ prompt: 'select_account' });
+                }
+            });
+        }
+    };
+
+    function handleCredentialResponse(response) {
+        const responsePayload = parseJwt(response.credential);
+        validateEmailWithSheet(responsePayload.email);
+    }
+
+    function validateEmailWithSheet(userEmail) {
+        console.log("Checking user database permission for: " + userEmail);
+        
+        fetch(`${APPS_SCRIPT_WEB_APP_URL}?email=${encodeURIComponent(userEmail)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.allowed) {
+                    alert("Access Granted! Redirecting to booking system...");
+                    window.location.href = "dashboard.html"; 
+                } else {
+                    alert("Access Denied: Your email (" + userEmail + ") is not authorized on the AllowedUsers sheet configuration.");
+                }
+            })
+            .catch(err => {
+                console.error("API Connection error:", err);
+                alert("Could not reach authentication server. Please check your network connection.");
+            });
+    }
+
+    function parseJwt (token) {
+        var base64Url = token.split('.')[1];
+        var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    }
+</script>
+
+</body>
+</html>
