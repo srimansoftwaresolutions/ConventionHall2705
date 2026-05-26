@@ -170,7 +170,8 @@
         .then(data => {
             if (data.allowed) {
                 alert("Access Granted! Redirecting to booking system...");
-                window.location.href = "Dashboard.html"; 
+                // Redirecting using a relative path (Recommended for web servers)
+window.location.href = "Dashboard.html";
             } else {
                 alert("Access Denied: Your email (" + userEmail + ") is not authorized on the AllowedUsers sheet configuration.");
             }
