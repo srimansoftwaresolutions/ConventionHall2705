@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HY One – HY Nine – Sriman | Booking System</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #FFFDF4;
+            color: #333;
+        }
+
+        /* Header Banner Styling */
+        header {
+            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-bottom: 4px solid #d4af37;
+            position: relative;
+        }
+
+        h1 {
+            margin: 0 0 5px 0;
+            font-size: 28px;
+            color: #f1f5f9;
+            letter-spacing: 1px;
+        }
+
+        .subtitle {
+            margin: 0 0 20px 0;
+            font-size: 18px;
+            color: #cbd5e1;
+        }
+
+        /* User Profile / Sign Out Block */
+        .user-profile {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .avatar {
+            width: 35px;
+            height: 35px;
+            background-color: #d4af37;
+            color: #0d1b2a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .username {
+            font-size: 14px;
+            color: #e2e8f0;
+        }
+
+        .sign-out-btn {
+            background: transparent;
+            border: 1px solid #94a3b8;
+            color: #e2e8f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .sign-out-btn:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-color: #ffffff;
+        }
+
+        /* Navigation Bar */
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            padding: 10px 25px;
+            border: 2px solid #d4af37;
+            background-color: transparent;
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            background-color: #d4af37;
+            color: #0d1b2a;
+        }
+
+        .nav-btn.reset-btn {
+            border-color: #f43f5e;
+            color: #f43f5e;
+        }
+
+        .nav-btn.reset-btn:hover {
+            background-color: #f43f5e;
+            color: #ffffff;
+        }
+
+        /* Main Content & Grid Layout */
+        main {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            justify-content: center;
+        }
+
+        /* Dashboard Cards */
+        .card {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 30px 20px;
+            text-align: center;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .card h3 {
+            margin: 0 0 10px 0;
+            color: #0d1b2a;
+            font-size: 20px;
+        }
+
+        .card p {
+            margin: 0;
+            color: #64748b;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* Responsive view adjustments */
+        @media (max-width: 600px) {
+            .user-profile {
+                position: relative;
+                top: 0;
+                right: 0;
+                justify-content: center;
+                margin-bottom: 15px;
+            }
+            header {
+                padding-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="user-profile">
+            <div class="avatar" id="user-avatar">G</div> 
+            <span class="username" id="user-display-name">example@gmail.com</span>
+            <button class="sign-out-btn">Sign out</button>
+        </div>
+
+        <h1>HY One – HY Nine – Sriman</h1>
+        <div class="subtitle">Booking System</div>
+
+        <nav>
+            <a href="#" class="nav-btn active">Home</a>
+            <a href="#" class="nav-btn">Overview</a>
+            <a href="#" class="nav-btn">Date</a>
+            <a href="#" class="nav-btn">Booking Form</a>
+            <a href="#" class="nav-btn reset-btn">Reset</a>
+        </nav>
+    </header>
+
+    <main>
+        <div class="grid-container">
+            
+            <div class="card">
+                <div class="card-icon">📅</div>
+                <h3>Overview</h3>
+                <p>3-month calendar with AM/PM availability per hall</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">🔍</div>
+                <h3>Date</h3>
+                <p>Check availability for a specific date</p>
+            </div>
+
+            <div class="card">
+                <div class="card-icon">📝</div>
+                <h3>Booking Form</h3>
+                <p>Submit a new booking via Google Form</p>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Simple placeholder logic showing how you can parse and display 
+        // a real logged-in Google Account name later using JavaScript.
+        function setGoogleUser(email) {
+            document.getElementById('user-display-name').innerText = email;
+            document.getElementById('user-avatar').innerText = email.charAt(0).toUpperCase();
+        }
+
+        // Example trigger:
+        // setGoogleUser("youraccount@gmail.com");
+    </script>
+</body>
+</html>
