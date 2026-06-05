@@ -5,235 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HY One – HY Nine – Sriman | Booking System</title>
     <style>
+        :root {
+            --bg-color: #fdfbf7;
+            --header-bg: #111827;
+            --card-bg: #ffffff;
+            --accent-gold: #eab308;
+            --text-main: #1f2937;
+        }
+
         body {
+            font-family: system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #FFFDF4;
-            color: #333;
         }
 
-        /* Header Banner Styling */
+        /* Top Header Styling matching your layout */
         header {
-            background: linear-gradient(135deg, #0d1b2a 0%, #1b263b 100%);
-            color: #ffffff;
-            padding: 20px;
+            background-color: var(--header-bg);
+            color: white;
+            padding: 1.5rem;
             text-align: center;
-            border-bottom: 4px solid #d4af37;
             position: relative;
+            border-bottom: 5px solid var(--accent-gold);
         }
 
-        h1 {
-            margin: 0 0 5px 0;
-            font-size: 28px;
-            color: #f1f5f9;
+        header h1 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1.8rem;
             letter-spacing: 1px;
         }
 
-        .subtitle {
-            margin: 0 0 20px 0;
-            font-size: 18px;
-            color: #cbd5e1;
+        header p {
+            margin: 0;
+            color: #9ca3af;
+            font-size: 1rem;
         }
 
-        /* User Profile / Sign Out Block */
-        .user-profile {
+        /* User Profile Status Area (Top Right Corner) */
+        .user-profile-status {
             position: absolute;
-            top: 20px;
-            right: 20px;
+            top: 1.5rem;
+            right: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 1rem;
         }
 
-        .avatar {
-            width: 35px;
-            height: 35px;
-            background-color: #d4af37;
-            color: #0d1b2a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 16px;
+        #user-id-display {
+            background-color: #374151;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #e5e7eb;
+            font-weight: 500;
         }
 
-        .username {
-            font-size: 14px;
-            color: #e2e8f0;
-        }
-
-        .sign-out-btn {
-            background: transparent;
-            border: 1px solid #94a3b8;
-            color: #e2e8f0;
-            padding: 5px 10px;
+        .btn-signout {
+            background-color: white;
+            color: black;
+            border: 1px solid #d1d5db;
+            padding: 0.4rem 0.8rem;
             border-radius: 4px;
             cursor: pointer;
-            font-size: 12px;
-            transition: all 0.3s ease;
+            font-weight: bold;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        .sign-out-btn:hover {
-            background-color: rgba(255, 255, 255, 0.1);
-            border-color: #ffffff;
+        .btn-signout:hover {
+            background-color: #f3f4f6;
         }
 
-        /* Navigation Bar */
-        nav {
+        /* Navigation Menu Bar */
+        .nav-container {
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-top: 15px;
-            flex-wrap: wrap;
+            background-color: var(--header-bg);
+            padding-bottom: 1.5rem;
         }
 
         .nav-btn {
-            padding: 10px 25px;
-            border: 2px solid #d4af37;
-            background-color: transparent;
-            color: #ffffff;
+            background: transparent;
+            color: white;
+            border: 2px solid #4b5563;
+            padding: 0.75rem 1.5rem;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
             text-decoration: none;
-            font-weight: 600;
-            font-size: 14px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
+            font-size: 0.9rem;
+            min-width: 120px;
+            text-align: center;
         }
 
-        .nav-btn:hover, .nav-btn.active {
-            background-color: #d4af37;
-            color: #0d1b2a;
+        .nav-btn.active {
+            background-color: var(--accent-gold);
+            color: #111827;
+            border-color: var(--accent-gold);
         }
 
-        .nav-btn.reset-btn {
+        .nav-btn-reset {
             border-color: #f43f5e;
             color: #f43f5e;
         }
 
-        .nav-btn.reset-btn:hover {
+        .nav-btn-reset:hover {
             background-color: #f43f5e;
-            color: #ffffff;
+            color: white;
         }
 
-        /* Main Content & Grid Layout */
-        main {
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 20px;
-        }
-
-        .grid-container {
+        /* Dashboard Grid Layout */
+        .dashboard-grid {
+            max-width: 1200px;
+            margin: 2.5rem auto;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            justify-content: center;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            padding: 0 1.5rem;
         }
 
-        /* Dashboard Cards */
         .card {
-            background-color: #ffffff;
-            border: 1px solid #e2e8f0;
+            background: var(--card-bg);
+            padding: 2.5rem 1.5rem;
             border-radius: 12px;
-            padding: 30px 20px;
             text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            border: 1px solid #e5e7eb;
         }
 
-        .card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-        }
-
-        .card-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
+        .card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
         }
 
         .card h3 {
-            margin: 0 0 10px 0;
-            color: #0d1b2a;
-            font-size: 20px;
+            margin: 0 0 0.5rem 0;
+            font-size: 1.3rem;
         }
 
         .card p {
+            color: #6b7280;
             margin: 0;
-            color: #64748b;
-            font-size: 14px;
+            font-size: 0.95rem;
             line-height: 1.5;
-        }
-
-        /* Responsive view adjustments */
-        @media (max-width: 600px) {
-            .user-profile {
-                position: relative;
-                top: 0;
-                right: 0;
-                justify-content: center;
-                margin-bottom: 15px;
-            }
-            header {
-                padding-top: 10px;
-            }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="user-profile">
-  <span id="username">Loading...</span>
-  <button id="signout-btn" onclick="handleSignOut()">Sign out</button>
-</div>
-
         <h1>HY One – HY Nine – Sriman</h1>
-        <div class="subtitle">Booking System</div>
-
-        <nav>
-            <a href="#" class="nav-btn active">Home</a>
-            <a href="#" class="nav-btn">Overview</a>
-            <a href="#" class="nav-btn">Date</a>
-            <a href="#" class="nav-btn">Booking Form</a>
-            <a href="#" class="nav-btn reset-btn">Reset</a>
-        </nav>
+        <p>Booking System</p>
+        
+        <div class="user-profile-status">
+            <span id="user-id-display">Loading...</span>
+            <button class="btn-signout" onclick="signOut()">Sign out</button>
+        </div>
     </header>
 
-    <main>
-        <div class="grid-container">
-            
-            <div class="card">
-                <div class="card-icon">📅</div>
-                <h3>Overview</h3>
-                <p>3-month calendar with AM/PM availability per hall</p>
-            </div>
+    <div class="nav-container">
+        <a href="#" class="nav-btn active">HOME</a>
+        <a href="#" class="nav-btn">OVERVIEW</a>
+        <a href="#" class="nav-btn">DATE</a>
+        <a href="#" class="nav-btn">BOOKING FORM</a>
+        <a href="#" class="nav-btn nav-btn-reset">RESET</a>
+    </div>
 
-            <div class="card">
-                <div class="card-icon">🔍</div>
-                <h3>Date</h3>
-                <p>Check availability for a specific date</p>
-            </div>
+    <main class="dashboard-grid">
+        <div class="card">
+            <div class="icon">📅</div>
+            <h3>Overview</h3>
+            <p>3-month calendar with AM/PM availability per hall</p>
+        </div>
+        
+        <div class="card">
+            <div class="icon">🔍</div>
+            <h3>Date</h3>
+            <p>Check availability for a specific date</p>
+        </div>
 
-            <div class="card">
-                <div class="card-icon">📝</div>
-                <h3>Booking Form</h3>
-                <p>Submit a new booking via Google Form</p>
-            </div>
-
+        <div class="card">
+            <div class="icon">📝</div>
+            <h3>Booking Form</h3>
+            <p>Submit a new booking via Google Form</p>
         </div>
     </main>
 
     <script>
-        // Simple placeholder logic showing how you can parse and display 
-        // a real logged-in Google Account name later using JavaScript.
-        function setGoogleUser(email) {
-            document.getElementById('user-display-name').innerText = email;
-            document.getElementById('user-avatar').innerText = email.charAt(0).toUpperCase();
-        }
+        // Runs instantly when the page DOM parsing has fully executed
+        document.addEventListener("DOMContentLoaded", () => {
+            const userIdDisplay = document.getElementById('user-id-display');
+            
+            // 1. Grab the active ID saved from index.html
+            const loggedInUser = localStorage.getItem('loggedInUser'); 
 
-        // Example trigger:
-        // setGoogleUser("youraccount@gmail.com");
+            // 2. Structural routing gatekeeper check
+            if (loggedInUser) {
+                // Swaps out "Loading..." text with the exact Username/ID instantly
+                userIdDisplay.textContent = loggedInUser;
+            } else {
+                // Fallback protection guard if user types URL straight into browser
+                alert("Unauthorized access detected. Returning to signature portal.");
+                window.location.href = "index.html"; 
+            }
+        });
+
+        // Safe Session destruction handler
+        function signOut() {
+            localStorage.removeItem('loggedInUser'); // Erase stored user key identity
+            window.location.href = "index.html";     // Bounce right back to identity portal
+        }
     </script>
 </body>
 </html>
