@@ -21,7 +21,6 @@
             padding: 0;
         }
 
-        /* Top Header Styling matching your layout */
         header {
             background-color: var(--header-bg);
             color: white;
@@ -43,7 +42,7 @@
             font-size: 1rem;
         }
 
-        /* User Profile Status Area (Top Right Corner) */
+        /* Profile alignment panel top right corner */
         .user-profile-status {
             position: absolute;
             top: 1.5rem;
@@ -78,7 +77,6 @@
             background-color: #f3f4f6;
         }
 
-        /* Navigation Menu Bar */
         .nav-container {
             display: flex;
             justify-content: center;
@@ -117,7 +115,6 @@
             color: white;
         }
 
-        /* Dashboard Grid Layout */
         .dashboard-grid {
             max-width: 1200px;
             margin: 2.5rem auto;
@@ -195,28 +192,27 @@
     </main>
 
     <script>
-        // Runs instantly when the page DOM parsing has fully executed
+        // Run immediately when page assets and markup finish initialization
         document.addEventListener("DOMContentLoaded", () => {
             const userIdDisplay = document.getElementById('user-id-display');
             
-            // 1. Grab the active ID saved from index.html
+            // Pull the string identifier provided by the Google response pipeline
             const loggedInUser = localStorage.getItem('loggedInUser'); 
 
-            // 2. Structural routing gatekeeper check
             if (loggedInUser) {
-                // Swaps out "Loading..." text with the exact Username/ID instantly
+                // Instantly inject the verified Google User ID or Email string
                 userIdDisplay.textContent = loggedInUser;
             } else {
-                // Fallback protection guard if user types URL straight into browser
-                alert("Unauthorized access detected. Returning to signature portal.");
+                // Reroute back to security wall if direct link entry was attempted
+                alert("No active session found. Redirecting to sign in.");
                 window.location.href = "index.html"; 
             }
         });
 
-        // Safe Session destruction handler
+        // Terminate local session tokens and step backwards
         function signOut() {
-            localStorage.removeItem('loggedInUser'); // Erase stored user key identity
-            window.location.href = "index.html";     // Bounce right back to identity portal
+            localStorage.removeItem('loggedInUser');
+            window.location.href = "index.html";     
         }
     </script>
 </body>
