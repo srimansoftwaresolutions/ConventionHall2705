@@ -113,7 +113,7 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
 
                 // Save a temporary authenticated flag for frontend routing
-                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userId', userEmailOrId);
 
                 // Clear login errors and seamlessly transition to dashboard
                 window.location.href = 'dashboard.html';
