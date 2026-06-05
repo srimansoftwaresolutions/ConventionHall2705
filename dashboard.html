@@ -34,6 +34,23 @@
             font-size: 1.5rem;
         }
 
+        /* NEW: Container to align user info and logout button side-by-side */
+        .profile-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        /* NEW: Style for the displayed user ID */
+        .user-id {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            background-color: #0f172a;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            border: 1px solid #334155;
+        }
+
         .logout-btn {
             background-color: #ef4444;
             color: white;
@@ -96,7 +113,10 @@
 
     <header>
         <h1>Convention Hall Booking System</h1>
-        <button class="logout-btn" onclick="logout()">Sign Out</button>
+        <div class="profile-container">
+            <span class="user-id" id="userDisplay">Loading...</span>
+            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        </div>
     </header>
 
     <main>
@@ -125,13 +145,17 @@
         // ROUTING GUARD: If user is not authenticated, bounce them back to login page instantly
         if (localStorage.getItem('isLoggedIn') !== 'true') {
             window.location.href = 'index.html';
+        } else {
+            // NEW: Fetch user identification from localStorage and display it
+            // It falls back to 'User' if 'userId' isn't set in your login page yet
+            const savedUserId = localStorage.getItem('userId') || 'User';
+            document.getElementById('userDisplay').textContent = savedUserId;
         }
 
         // Logout action to clear session tokens and redirect
         function logout() {
             localStorage.removeItem('isLoggedIn');
-            // If you saved a backend JWT token, clear it here too:
-            // localStorage.removeItem('userToken'); 
+            localStorage.removeItem('userId'); // NEW: Clear user data on sign out
             window.location.href = 'index.html';
         }
     </script>
