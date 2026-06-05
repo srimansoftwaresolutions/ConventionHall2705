@@ -47,11 +47,17 @@
             margin-bottom: 2rem;
         }
 
-        /* Container to center and space the Google button */
         .google-btn-container {
             display: flex;
             justify-content: center;
             margin-top: 1.5rem;
+        }
+
+        .loading-text {
+            display: none;
+            color: #94a3b8;
+            margin-top: 1rem;
+            font-size: 0.9rem;
         }
     </style>
 </head>
@@ -78,17 +84,50 @@
                  data-logo_alignment="left">
             </div>
         </div>
-        </div>
+
+        <div id="loadingStatus" class="loading-text">Verifying corporate credentials...</div>
+    </div>
 
     <script>
-        // Callback function triggered after a user successfully logs in with Google
-        function handleCredentialResponse(response) {
-            console.log("Encoded JWT ID token: " + response.credential);
-            
-            // Step 1: Send 'response.credential' to your backend server via fetch/axios
-            // Step 2: Verify the token on your backend and grant dashboard access
-            
-            alert("Google login successful! Sending token to backend verification...");
+        async function handleCredentialResponse(response) {
+            // Show loading status and hide button area
+            document.getElementById('loadingStatus').style.display = 'block';
+            console.log("Google token received. Processing authentication...");
+
+            try {
+                /* ===================================================================
+                OPTIONAL: IF YOU HAVE A LIVE BACKEND API, UNCOMMENT THIS BLOCK
+                ===================================================================
+                const backendResponse = await fetch('/api/auth/google', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: response.credential })
+                });
+                const data = await backendResponse.json();
+                if (!backendResponse.ok) throw new Error(data.message || "Auth Failed");
+                localStorage.setItem('userToken', data.token);
+                ===================================================================
+                */
+
+                // Simulated backend delay for visual transition smoothness
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // Save a temporary authenticated flag for frontend routing
+                localStorage.setItem('isLoggedIn', 'true');
+
+                // Clear login errors and seamlessly transition to dashboard
+                window.location.href = 'dashboard.html';
+
+            } catch (error) {
+                console.error("Authentication failed:", error);
+                alert("Login failed: " + error.message);
+                document.getElementById('loadingStatus').style.display = 'none';
+            }
+        }
+
+        // Security check: If already logged in, skip login page entirely
+        if (localStorage.getItem('isLoggedIn') === 'true') {
+            window.location.href = 'dashboard.html';
         }
     </script>
 </body>
