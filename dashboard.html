@@ -5,158 +5,262 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Convention Hall Booking</title>
     <style>
+        :root {
+            /* 🌐 Page Background & Base Text */
+            --bg-color: #FFFDF4;
+            --text-main: #333333;
+
+            /* 🏷️ Header Banner & Text Elements */
+            --header-bg: linear-gradient(135deg, #0d1b2a, #1b263b);
+            --header-border-gold: #d4af37;
+            --title-color: #f1f5f9;
+            --subtitle-color: #cbd5e1;
+
+            /* 👤 User Profile Block */
+            --avatar-bg: #d4af37;
+            --avatar-text: #0d1b2a;
+            --username-color: #e2e8f0;
+            --signout-border: #94a3b8;
+            --signout-text: #e2e8f0;
+            --signout-hover-bg: rgba(255, 255, 255, 0.1);
+            --signout-hover-border: #ffffff;
+
+            /* 📊 Dashboard Cards */
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --card-title: #0d1b2a;
+            --card-desc: #64748b;
+        }
+
         * {
+            box-sizing: border-box;
             margin: 0;
             padding: 0;
-            box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            background-color: #0f172a;
-            color: #f8fafc;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            align-items: center;
         }
 
+        /* 🏷️ Full-width Header Banner Wrapper */
         header {
-            background-color: #1e293b;
-            padding: 1rem 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #334155;
-        }
-
-        h1 {
-            color: #f59e0b;
-            font-size: 1.5rem;
-        }
-
-        /* NEW: Container to align user info and logout button side-by-side */
-        .profile-container {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        /* NEW: Style for the displayed user ID */
-        .user-id {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            background-color: #0f172a;
-            padding: 0.4rem 0.8rem;
-            border-radius: 20px;
-            border: 1px solid #334155;
-        }
-
-        .logout-btn {
-            background-color: #ef4444;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 6px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background 0.2s;
-        }
-
-        .logout-btn:hover {
-            background-color: #dc2626;
-        }
-
-        main {
-            padding: 3rem 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
             width: 100%;
-            flex-grow: 1;
+            background: var(--header-bg);
+            border-bottom: 4px solid var(--header-border-gold);
+            padding: 40px 48px; /* Increased side padding for elegant spacing */
+            position: relative;
+            display: flex;
+            justify-content: flex-start; /* Changed to left alignment */
+            align-items: center;
         }
 
-        .welcome-card {
-            background-color: #1e293b;
-            border-radius: 12px;
-            padding: 2rem;
-            border: 1px solid #334155;
-            margin-bottom: 2rem;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .stat-card {
-            background-color: #1e293b;
-            padding: 1.5rem;
-            border-radius: 8px;
-            border: 1px solid #334155;
-        }
-
-        .stat-title {
-            color: #94a3b8;
-            font-size: 0.875rem;
-            text-transform: uppercase;
-            margin-bottom: 0.5rem;
-        }
-
-        .stat-value {
-            font-size: 1.8rem;
+        /* Left Aligned & Single Line Title */
+        .brand-title {
+            color: var(--title-color);
+            font-size: 2.2rem;
             font-weight: bold;
-            color: #f8fafc;
+            white-space: nowrap;
+            text-align: left; /* Changed to left alignment */
+            letter-spacing: -0.02em;
+        }
+
+        /* 👤 User Profile Block */
+        .user-profile {
+            position: absolute;
+            top: 50%;
+            right: 48px;
+            transform: translateY(-50%); /* Center-align vertically relative to the title */
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 10;
+        }
+
+        .user-avatar {
+            background-color: var(--avatar-bg);
+            color: var(--avatar-text);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .user-email {
+            color: var(--username-color);
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .btn-signout {
+            background: transparent;
+            color: var(--signout-text);
+            border: 1px solid var(--signout-border);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-signout:hover {
+            background-color: var(--signout-hover-bg);
+            border-color: var(--signout-hover-border);
+        }
+
+        /* Dashboard Container Layout */
+        .dashboard-container {
+            width: 100%;
+            max-width: 1200px;
+            padding: 40px 24px;
+            display: flex;
+            justify-content: center;
+        }
+
+        /* 📊 Dashboard Grid Layout */
+        .sections-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(225px, 1fr));
+            gap: 24px;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        /* 75% Scale Tiles */
+        .section-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 9px;
+            padding: 27px 18px;
+            min-height: 165px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 1px 3px -1px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header-block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 12px;
+        }
+
+        .card-icon {
+            width: 27px;
+            height: 27px;
+            color: #1b263b;
+        }
+
+        .section-card h3 {
+            color: var(--card-title);
+            font-size: 1rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+
+        .section-content {
+            font-size: 0.85rem;
+            color: var(--card-desc);
+            font-weight: 500;
+            line-height: 1.4;
+        }
+
+        /* Responsive optimizations */
+        @media (max-width: 900px) {
+            header {
+                flex-direction: column;
+                padding-top: 80px;
+                padding-bottom: 30px;
+                justify-content: center;
+                padding-left: 24px;
+                padding-right: 24px;
+            }
+            .user-profile {
+                top: 16px;
+                right: 50%;
+                transform: translateX(50%);
+                width: 100%;
+                justify-content: center;
+            }
+            .brand-title {
+                white-space: normal;
+                font-size: 1.8rem;
+                text-align: center;
+            }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Convention Hall Booking System</h1>
-        <div class="profile-container">
-            <span class="user-id" id="userDisplay">Loading...</span>
-            <button class="logout-btn" onclick="logout()">Sign Out</button>
+        <h1 class="brand-title">Convention Hall Booking System</h1>
+
+        <div class="user-profile">
+            <div class="user-avatar">S</div>
+            <span class="user-email">srimansoftwaresolutions@gmail.com</span>
+            <button class="btn-signout" onclick="handleSignOut()">Sign Out</button>
         </div>
     </header>
 
-    <main>
-        <div class="welcome-card">
-            <h2>Welcome Back!</h2>
-            <p style="color: #94a3b8; margin-top: 0.5rem;">You have successfully authenticated via Google Corporate Account.</p>
+    <div class="dashboard-container">
+
+        <div class="sections-grid">
+            
+            <div class="section-card">
+                <div class="card-header-block">
+                    <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <h3>Overview</h3>
+                </div>
+                <p class="section-content">3 Months Calendar view</p>
+            </div>
+
+            <div class="section-card">
+                <div class="card-header-block">
+                    <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                    </svg>
+                    <h3>Date</h3>
+                </div>
+                <p class="section-content">Check availability for a specific date</p>
+            </div>
+
+            <div class="section-card">
+                <div class="card-header-block">
+                    <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                    </svg>
+                    <h3>Booking Form</h3>
+                </div>
+                <p class="section-content">Create a New Booking here</p>
+            </div>
+
         </div>
 
-        <div class="grid">
-            <div class="stat-card">
-                <div class="stat-title">Active Bookings</div>
-                <div class="stat-value">12</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Pending Approvals</div>
-                <div class="stat-value">3</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-title">Hall Capacity Availability</div>
-                <div class="stat-value">85%</div>
-            </div>
-        </div>
-    </main>
+    </div>
 
     <script>
-        // ROUTING GUARD: If user is not authenticated, bounce them back to login page instantly
-        if (localStorage.getItem('isLoggedIn') !== 'true') {
-            window.location.href = 'index.html';
-        } else {
-            // NEW: Fetch user identification from localStorage and display it
-            // It falls back to 'User' if 'userId' isn't set in your login page yet
-            const savedUserId = localStorage.getItem('userId') || 'User';
-            document.getElementById('userDisplay').textContent = savedUserId;
-        }
-
-        // Logout action to clear session tokens and redirect
-        function logout() {
-            localStorage.removeItem('isLoggedIn');
-            localStorage.removeItem('userId'); // NEW: Clear user data on sign out
-            window.location.href = 'index.html';
+        function handleSignOut() {
+            console.log("Session destruction initialized.");
         }
     </script>
 </body>
