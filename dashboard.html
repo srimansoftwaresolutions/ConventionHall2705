@@ -53,10 +53,10 @@
             width: 100%;
             background: var(--header-bg);
             border-bottom: 4px solid var(--header-border-gold);
-            padding: 40px 48px; /* Increased side padding for elegant spacing */
+            padding: 40px 48px;
             position: relative;
             display: flex;
-            justify-content: flex-start; /* Changed to left alignment */
+            justify-content: flex-start;
             align-items: center;
         }
 
@@ -66,7 +66,7 @@
             font-size: 2.2rem;
             font-weight: bold;
             white-space: nowrap;
-            text-align: left; /* Changed to left alignment */
+            text-align: left;
             letter-spacing: -0.02em;
         }
 
@@ -75,7 +75,7 @@
             position: absolute;
             top: 50%;
             right: 48px;
-            transform: translateY(-50%); /* Center-align vertically relative to the title */
+            transform: translateY(-50%);
             display: flex;
             align-items: center;
             gap: 12px;
@@ -136,6 +136,13 @@
             max-width: 900px;
         }
 
+        /* Clickable Link Framework for specific Tiles */
+        .card-link {
+            text-decoration: none; /* Prevents text formatting underlines */
+            color: inherit;
+            display: block;
+        }
+
         /* 75% Scale Tiles */
         .section-card {
             background-color: var(--card-bg);
@@ -148,11 +155,14 @@
             align-items: center;
             text-align: center;
             box-shadow: 0 3px 5px -1px rgba(0, 0, 0, 0.04), 0 1px 3px -1px rgba(0, 0, 0, 0.02);
-            transition: transform 0.2s ease;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            height: 100%; /* Spans full cell allocation if linked layout adjusts */
         }
 
         .section-card:hover {
             transform: translateY(-2px);
+            box-shadow: 0 6px 10px -1px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
         }
 
         .card-header-block {
@@ -244,15 +254,17 @@
                 <p class="section-content">Check availability for a specific date</p>
             </div>
 
-            <div class="section-card">
-                <div class="card-header-block">
-                    <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                    </svg>
-                    <h3>Booking Form</h3>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScAbU6MNFu_TXwJPN_neUxXhkjos6u0a3tT2gNW1s4_3sr-HA/viewform" class="card-link" target="_blank">
+                <div class="section-card">
+                    <div class="card-header-block">
+                        <svg class="card-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                        <h3>Booking Form</h3>
+                    </div>
+                    <p class="section-content">Create a New Booking here</p>
                 </div>
-                <p class="section-content">Create a New Booking here</p>
-            </div>
+            </a>
 
         </div>
 
