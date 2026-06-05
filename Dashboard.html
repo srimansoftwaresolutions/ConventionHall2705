@@ -3,216 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HY One – HY Nine – Sriman | Booking System</title>
+    <title>Dashboard - Convention Hall Booking</title>
     <style>
-        :root {
-            --bg-color: #fdfbf7;
-            --header-bg: #111827;
-            --card-bg: #ffffff;
-            --accent-gold: #eab308;
-            --text-main: #1f2937;
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: system-ui, -apple-system, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            margin: 0;
-            padding: 0;
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
-            background-color: var(--header-bg);
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            position: relative;
-            border-bottom: 5px solid var(--accent-gold);
-        }
-
-        header h1 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.8rem;
-            letter-spacing: 1px;
-        }
-
-        header p {
-            margin: 0;
-            color: #9ca3af;
-            font-size: 1rem;
-        }
-
-        /* Profile alignment panel top right corner */
-        .user-profile-status {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
+            background-color: #1e293b;
+            padding: 1rem 2rem;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 1rem;
+            border-bottom: 1px solid #334155;
         }
 
-        #user-id-display {
-            background-color: #374151;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            color: #e5e7eb;
-            font-weight: 500;
+        h1 {
+            color: #f59e0b;
+            font-size: 1.5rem;
         }
 
-        .btn-signout {
-            background-color: white;
-            color: black;
-            border: 1px solid #d1d5db;
-            padding: 0.4rem 0.8rem;
-            border-radius: 4px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 0.9rem;
-            transition: all 0.2s;
-        }
-
-        .btn-signout:hover {
-            background-color: #f3f4f6;
-        }
-
-        .nav-container {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            background-color: var(--header-bg);
-            padding-bottom: 1.5rem;
-        }
-
-        .nav-btn {
-            background: transparent;
+        .logout-btn {
+            background-color: #ef4444;
             color: white;
-            border: 2px solid #4b5563;
-            padding: 0.75rem 1.5rem;
-            font-weight: bold;
+            border: none;
+            padding: 0.5rem 1rem;
             border-radius: 6px;
             cursor: pointer;
-            text-decoration: none;
-            font-size: 0.9rem;
-            min-width: 120px;
-            text-align: center;
+            font-weight: 600;
+            transition: background 0.2s;
         }
 
-        .nav-btn.active {
-            background-color: var(--accent-gold);
-            color: #111827;
-            border-color: var(--accent-gold);
+        .logout-btn:hover {
+            background-color: #dc2626;
         }
 
-        .nav-btn-reset {
-            border-color: #f43f5e;
-            color: #f43f5e;
-        }
-
-        .nav-btn-reset:hover {
-            background-color: #f43f5e;
-            color: white;
-        }
-
-        .dashboard-grid {
+        main {
+            padding: 3rem 2rem;
             max-width: 1200px;
-            margin: 2.5rem auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            padding: 0 1.5rem;
+            margin: 0 auto;
+            width: 100%;
+            flex-grow: 1;
         }
 
-        .card {
-            background: var(--card-bg);
-            padding: 2.5rem 1.5rem;
+        .welcome-card {
+            background-color: #1e293b;
             border-radius: 12px;
-            text-align: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
-            border: 1px solid #e5e7eb;
+            padding: 2rem;
+            border: 1px solid #334155;
+            margin-bottom: 2rem;
         }
 
-        .card .icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
         }
 
-        .card h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1.3rem;
+        .stat-card {
+            background-color: #1e293b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 1px solid #334155;
         }
 
-        .card p {
-            color: #6b7280;
-            margin: 0;
-            font-size: 0.95rem;
-            line-height: 1.5;
+        .stat-title {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-value {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #f8fafc;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>HY One – HY Nine – Sriman</h1>
-        <p>Booking System</p>
-        
-        <div class="user-profile-status">
-            <span id="user-id-display">Loading...</span>
-            <button class="btn-signout" onclick="signOut()">Sign out</button>
-        </div>
+        <h1>Convention Hall Booking System</h1>
+        <button class="logout-btn" onclick="logout()">Sign Out</button>
     </header>
 
-    <div class="nav-container">
-        <a href="#" class="nav-btn active">HOME</a>
-        <a href="#" class="nav-btn">OVERVIEW</a>
-        <a href="#" class="nav-btn">DATE</a>
-        <a href="#" class="nav-btn">BOOKING FORM</a>
-        <a href="#" class="nav-btn nav-btn-reset">RESET</a>
-    </div>
-
-    <main class="dashboard-grid">
-        <div class="card">
-            <div class="icon">📅</div>
-            <h3>Overview</h3>
-            <p>3-month calendar with AM/PM availability per hall</p>
-        </div>
-        
-        <div class="card">
-            <div class="icon">🔍</div>
-            <h3>Date</h3>
-            <p>Check availability for a specific date</p>
+    <main>
+        <div class="welcome-card">
+            <h2>Welcome Back!</h2>
+            <p style="color: #94a3b8; margin-top: 0.5rem;">You have successfully authenticated via Google Corporate Account.</p>
         </div>
 
-        <div class="card">
-            <div class="icon">📝</div>
-            <h3>Booking Form</h3>
-            <p>Submit a new booking via Google Form</p>
+        <div class="grid">
+            <div class="stat-card">
+                <div class="stat-title">Active Bookings</div>
+                <div class="stat-value">12</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Pending Approvals</div>
+                <div class="stat-value">3</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Hall Capacity Availability</div>
+                <div class="stat-value">85%</div>
+            </div>
         </div>
     </main>
 
     <script>
-        // Run immediately when page assets and markup finish initialization
-        document.addEventListener("DOMContentLoaded", () => {
-            const userIdDisplay = document.getElementById('user-id-display');
-            
-            // Pull the string identifier provided by the Google response pipeline
-            const loggedInUser = localStorage.getItem('loggedInUser'); 
+        // ROUTING GUARD: If user is not authenticated, bounce them back to login page instantly
+        if (localStorage.getItem('isLoggedIn') !== 'true') {
+            window.location.href = 'index.html';
+        }
 
-            if (loggedInUser) {
-                // Instantly inject the verified Google User ID or Email string
-                userIdDisplay.textContent = loggedInUser;
-            } else {
-                // Reroute back to security wall if direct link entry was attempted
-                alert("No active session found. Redirecting to sign in.");
-                window.location.href = "index.html"; 
-            }
-        });
-
-        // Terminate local session tokens and step backwards
-        function signOut() {
-            localStorage.removeItem('loggedInUser');
-            window.location.href = "index.html";     
+        // Logout action to clear session tokens and redirect
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            // If you saved a backend JWT token, clear it here too:
+            // localStorage.removeItem('userToken'); 
+            window.location.href = 'index.html';
         }
     </script>
 </body>
