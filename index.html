@@ -15,117 +15,121 @@
 
         body {
             background-color: #0f172a;
-            height: 100vh;
+            color: #f8fafc;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #f8fafc;
+            padding: 1rem;
         }
 
         .login-card {
             background-color: #1e293b;
-            padding: 2.5rem;
             border-radius: 12px;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.3);
-            width: 100%;
-            max-width: 450px;
-            text-align: center;
+            padding: 2.5rem;
             border: 1px solid #334155;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
         }
 
-        .card-title {
+        h2 {
             color: #f59e0b;
-            font-size: 1.8rem;
-            font-weight: 700;
+            font-size: 2rem;
             margin-bottom: 1rem;
         }
 
-        .card-subtitle {
+        p {
             color: #94a3b8;
             font-size: 0.95rem;
-            line-height: 1.5;
             margin-bottom: 2rem;
+            line-height: 1.5;
         }
 
         .google-btn-container {
             display: flex;
             justify-content: center;
-            margin-top: 1.5rem;
+            margin-bottom: 1.5rem;
         }
 
-        .loading-text {
-            display: none;
+        .status-message {
             color: #94a3b8;
+            font-size: 0.85rem;
             margin-top: 1rem;
-            font-size: 0.9rem;
+            font-style: italic;
         }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <h2 class="card-title">Convention Hall Login</h2>
-        <p class="card-subtitle">Sign in using your corporate account to access the dashboard</p>
+        <h2>Convention Hall Login</h2>
+        <p>Sign in using your corporate account to access the dashboard</p>
         
         <div class="google-btn-container">
             <div id="g_id_onload"
                  data-client_id="872840152167-kfqbk32onvm6jrka8g39c2lq1v26ra4p.apps.googleusercontent.com"
-                 data-context="signin"
-                 data-ux_mode="popup"
                  data-callback="handleCredentialResponse"
                  data-auto_prompt="false">
             </div>
-
             <div class="g_id_signin"
                  data-type="standard"
-                 data-shape="rounded"
-                 data-theme="filled_blue"
                  data-size="large"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-shape="semibold"
                  data-logo_alignment="left">
             </div>
         </div>
 
-        <div id="loadingStatus" class="loading-text">Verifying corporate credentials...</div>
+        <div class="status-message" id="status">Awaiting authentication...</div>
     </div>
 
     <script>
-        async function handleCredentialResponse(response) {
-            // Show loading status and hide button area
-            document.getElementById('loadingStatus').style.display = 'block';
-            console.log("Google token received. Processing authentication...");
-
+        // Callback function executed automatically after successful Google Sign-In
+        function handleCredentialResponse(response) {
             try {
-                /* ===================================================================
-                OPTIONAL: IF YOU HAVE A LIVE BACKEND API, UNCOMMENT THIS BLOCK
-                ===================================================================
-                const backendResponse = await fetch('/api/auth/google', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: response.credential })
-                });
-                const data = await backendResponse.json();
-                if (!backendResponse.ok) throw new Error(data.message || "Auth Failed");
-                localStorage.setItem('userToken', data.token);
-                ===================================================================
-                */
-
-                // Simulated backend delay for visual transition smoothness
-                await new Promise(resolve => setTimeout(resolve, 1000));
-
-                // Save a temporary authenticated flag for frontend routing
-                localStorage.setItem('userId', userEmailOrId);
-
-                // Clear login errors and seamlessly transition to dashboard
+                document.getElementById('status').textContent = "Verifying corporate credentials...";
+                
+                // 1. Decode Google's JWT token payload
+                const responsePayload = parseJwt(response.credential);
+                
+                // 2. Extract the email (or fallback to name if email is hidden)
+                const userEmail = responsePayload.email || responsePayload.name || 'Corporate User';
+                
+                // 3. Save session values correctly to localStorage
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userId', userEmail); 
+                
+                document.getElementById('status').textContent = "Redirecting to dashboard...";
+                
+                // 4. Redirect to the dashboard page safely
                 window.location.href = 'dashboard.html';
-
+                
             } catch (error) {
-                console.error("Authentication failed:", error);
-                alert("Login failed: " + error.message);
-                document.getElementById('loadingStatus').style.display = 'none';
+                console.error("Login Error:", error);
+                document.getElementById('status').textContent = "Login failed: Error processing account token.";
+                document.getElementById('status').style.color = "#ef4444";
             }
         }
 
-        // Security check: If already logged in, skip login page entirely
+        // Helper function to decode standard JWT (JSON Web Tokens) provided by Google
+        function parseJwt(token) {
+            try {
+                var base64Url = token.split('.')[1];
+                var base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                var jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                }).join(''));
+
+                return JSON.parse(jsonPayload);
+            } catch(e) {
+                throw new Error("Invalid Token Structure");
+            }
+        }
+
+        // AUTO-FORWARD: If they are already logged in, skip this page entirely
         if (localStorage.getItem('isLoggedIn') === 'true') {
             window.location.href = 'dashboard.html';
         }
