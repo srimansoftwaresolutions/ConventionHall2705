@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3-Month Calendar Overview</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Navigation Header */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto 20px auto;
+            background: #1e293b;
+            padding: 15px 25px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-btn {
+            background-color: #e2e8f0;
+            color: #1e293b;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background-color: #cbd5e1;
+        }
+
+        .view-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #f59e0b; /* Gold accent matching your dashboard */
+        }
+
+        /* 3 Boxes Layout */
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .month-box {
+            background: #fff;
+            color: #1e293b;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+        }
+
+        .month-title {
+            text-align: center;
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #0f172a;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        /* Calendar Grid Generation */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+            text-align: center;
+        }
+
+        .weekday {
+            font-weight: bold;
+            color: #64748b;
+            font-size: 0.85rem;
+            padding-bottom: 5px;
+        }
+
+        .day {
+            padding: 10px 0;
+            border-radius: 4px;
+            font-size: 0.95rem;
+            background: #f8fafc;
+            min-height: 40px;
+            position: relative;
+        }
+
+        .day.empty {
+            background: transparent;
+        }
+
+        /* Style for dates that have bookings */
+        .day.booked {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #b45309;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="calendar-header">
+        <button class="nav-btn" onclick="navigateMonths(-3)">&lt; Previous Months &gt;</button>
+        <div class="view-title" id="viewLabel">Schedule Overview</div>
+        <button class="nav-btn" onclick="navigateMonths(3)">&lt; Next Months &gt;</button>
+    </div>
+
+    <div class="calendar-container">
+        <div class="month-box">
+            <div class="month-title" id="month0-title">Last Month</div>
+            <div class="calendar-grid" id="month0-grid"></div>
+        </div>
+
+        <div class="month-box">
+            <div class="month-title" id="month1-title">Current Month</div>
+            <div class="calendar-grid" id="month1-grid"></div>
+        </div>
+
+        <div class="month-box">
+            <div class="month-title" id="month2-title">Next Month</div>
+            <div class="calendar-grid" id="month2-grid"></div>
+        </div>
+    </div>
+
+    <script>
+        // Track the baseline 'Current' date for the middle box
+        let baseDate = new Date();
+
+        const monthNames = ["January", "February", "March", "April", "May", "June", 
+                            "July", "August", "September", "October", "November", "December"];
+        const daysOfWeek = ["Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"];
+
+        function render3Months() {
+            // Calculate targets: baseDate - 1 month, baseDate, baseDate + 1 month
+            const targetMonths = [
+                new Date(baseDate.getFullYear(), baseDate.getMonth() - 1, 1),
+                new Date(baseDate.getFullYear(), baseDate.getMonth(), 1),
+                new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 1)
+            ];
+
+            // Update top title bar view text
+            document.getElementById('viewLabel').innerText = `Schedule for ${monthNames[targetMonths[0].getMonth()]} - ${monthNames[targetMonths[2].getMonth()]} ${targetMonths[1].getFullYear()}`;
+
+            targetMonths.forEach((date, index) => {
+                const year = date.getFullYear();
+                const month = date.getMonth();
+                
+                // Set Header Title
+                document.getElementById(`month${index}-title`).innerText = `${monthNames[month]} ${year}`;
+                
+                const grid = document.getElementById(`month${index}-grid`);
+                grid.innerHTML = ""; // Clear existing cells
+
+                // Add Day Headers (Su, Mo, Tu...)
+                daysOfWeek.forEach(day => {
+                    const div = document.createElement('div');
+                    div.className = 'weekday';
+                    div.innerText = day;
+                    grid.appendChild(div);
+                });
+
+                // Get first day of the month and total days
+                const firstDayIndex = new Date(year, month, 1).getDay();
+                const totalDays = new Date(year, month + 1, 0).getDate();
+
+                // Pad empty spaces for preceding month days
+                for (let i = 0; i < firstDayIndex; i++) {
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'day empty';
+                    grid.appendChild(emptyDiv);
+                }
+
+                // Populate the actual calendar days
+                for (let day = 1; day <= totalDays; day++) {
+                    const dayDiv = document.createElement('div');
+                    dayDiv.className = 'day';
+                    dayDiv.innerText = day;
+                    
+                    // Code hook: Here you can check your Google Calendar API data later 
+                    // to see if 'year-month-day' has a booking, then apply:
+                    // dayDiv.classList.add('booked'); 
+
+                    grid.appendChild(dayDiv);
+                }
+            });
+        }
+
+        // Navigation controls: shifts the focus by +/- 3 months chunks
+        function navigateMonths(step) {
+            baseDate.setMonth(baseDate.getMonth() + step);
+            render3Months();
+        }
+
+        // Initial paint on load
+        render3Months();
+    </script>
+</body>
+</html>
