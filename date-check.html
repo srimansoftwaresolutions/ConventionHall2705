@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Date Availability - Convention Hall</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        .slot-booked { background-color: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
+        .slot-available { background-color: #f0fdf4; color: #166534; border-left: 4px solid #22c55e; }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans antialiased">
+
+    <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
+        <h1 class="text-xl font-bold tracking-wide">Convention Hall Booking System</h1>
+        <div class="space-x-2">
+            <a href="#" class="px-4 py-2 border border-white rounded hover:bg-white hover:text-slate-900 transition-colors">Home</a>
+            <button onclick="resetForm()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded transition-colors">Reset</button>
+        </div>
+    </nav>
+    <div class="h-1 bg-amber-500"></div>
+
+    <main class="max-w-4xl mx-auto mt-10 px-4">
+        
+        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col sm:flex-row items-center justify-center gap-4 border border-gray-200">
+            <label for="bookingDate" class="text-gray-700 font-medium text-lg">Select Date from Calendar:</label>
+            <input type="date" id="bookingDate" onchange="handleDateChange(this.value)" 
+                   class="border-2 border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:outline-none focus:border-amber-500 font-medium shadow-sm cursor-pointer">
+        </div>
+
+        <div id="statusMessage" class="text-center mt-6 text-gray-500 hidden">
+            <p class="animate-pulse">Fetching booking details from Google Forms...</p>
+        </div>
+
+        <div id="resultsContainer" class="mt-8 space-y-6">
+            </div>
+
+    </main>
+
+    <script>
+        // Replace this URL string with your actual deployed Google Apps Script Web App URL
+        const GOOGLE_SCRIPT_API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec";
+
+        // Fallback demo dataset structural blueprint matching your Google Form requirements
+        const fallbackDemoData = [
+            {
+                date: "2026-06-10",
+                conventionName: "Hyderabad Exhibition Center",
+                hallType: "Main Grand Hall (2000 Pax)",
+                slots: {
+                    "Morning": { status: "Booked", details: "HY 1 FULL" },
+                    "Evening": { status: "Available", details: "" },
+                    "Full Day": { status: "Booked", details: "Corporate Gala" }
+                }
+            }
+        ];
+
+        /**
+         * Triggers whenever a new date is picked via the HTML5 date picker calendar
+         */
+        async function handleDateChange(selectedDate) {
+            if (!selectedDate) return;
+
+            const resultsContainer = document.getElementById('resultsContainer');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            resultsContainer.innerHTML = "";
+            statusMessage.classList.remove('hidden');
+
+            try {
+                // Attempting live data fetch from Google Sheets Web App
+                const response = await fetch(`${GOOGLE_SCRIPT_API_URL}?date=${selectedDate}`);
+                if (!response.ok) throw new Error("Network response wasn't smooth.");
+                
+                const data = await response.json();
+                renderAvailability(data, selectedDate);
+            } catch (error) {
+                console.warn("Using fallback structural demo data. Setup your Apps Script web app endpoint to stream live responses.");
+                
+                // Filtering fallback array structure for demonstration purposes
+                const matchedBookings = fallbackDemoData.filter(item => item.date === selectedDate);
+                renderAvailability(matchedBookings, selectedDate);
+            } finally {
+                statusMessage.classList.add('hidden');
+            }
+        }
+
+        /**
+         * Dynamically parses structure and outputs:
+         * <Convention Name>
+         * <Hall Type>
+         * Followed by clean, time-slot itemized statuses
+         */
+        function renderAvailability(bookings, selectedDate) {
+            const resultsContainer = document.getElementById('resultsContainer');
+            
+            if (!bookings || bookings.length === 0) {
+                resultsContainer.innerHTML = `
+                    <div class="bg-emerald-50 text-emerald-800 p-6 rounded-xl border border-emerald-200 text-center shadow-sm">
+                        <p class="font-semibold text-lg">🎉 All Slots Available!</p>
+                        <p class="text-sm mt-1">No forms submitted for ${formatReadableDate(selectedDate)} yet.</p>
+                    </div>`;
+                return;
+            }
+
+            bookings.forEach(booking => {
+                let slotsHtml = "";
+
+                // Defined structural slots expected by conventional scheduling blocks
+                const standardSlots = booking.slots || {
+                    "Morning": { status: "Available", details: "" },
+                    "Evening": { status: "Available", details: "" },
+                    "Full Day": { status: "Available", details: "" }
+                };
+
+                for (const [slotName, slotData] of Object.entries(standardSlots)) {
+                    const isBooked = slotData.status === "Booked";
+                    const statusClass = isBooked ? "slot-booked" : "slot-available";
+                    const badgeClass = isBooked ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800";
+
+                    slotsHtml += `
+                        <div class="p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center ${statusClass} transition-all">
+                            <div>
+                                <span class="font-bold tracking-wide block sm:inline-block w-28">${slotName}:</span>
+                                <span class="text-sm opacity-90">${isBooked ? `Reserved (${slotData.details})` : 'Open for reservations'}</span>
+                            </div>
+                            <span class="mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase ${badgeClass}">
+                                ${slotData.status}
+                            </span>
+                        </div>
+                    `;
+                }
+
+                // Append matching requested layout format syntax strings cleanly
+                const cardHtml = `
+                    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
+                        <div class="bg-slate-800 text-white px-6 py-4">
+                            <h2 class="text-xl font-bold tracking-tight text-amber-400">${booking.conventionName}</h2>
+                            <p class="text-sm text-gray-300 mt-1 font-medium">${booking.hallType}</p>
+                        </div>
+                        <div class="p-6 space-y-3">
+                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Time Slot Breakdown</h3>
+                            ${slotsHtml}
+                        </div>
+                    </div>
+                `;
+                resultsContainer.innerHTML += cardHtml;
+            });
+        }
+
+        function formatReadableDate(dateString) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        function resetForm() {
+            document.getElementById('bookingDate').value = '';
+            document.getElementById('resultsContainer').value = '';
+            document.getElementById('resultsContainer').innerHTML = '';
+            document.getElementById('statusMessage').classList.add('hidden');
+        }
+    </script>
+</body>
+</html>
