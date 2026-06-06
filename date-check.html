@@ -6,349 +6,193 @@
     <title>Date Availability - Convention Hall</title>
     <style>
         :root {
-            --primary-color: #0b1528;
-            --accent-color: #ffa500;
-            --bg-light: #f4f6f9;
+            --primary-color: #0f172a;
+            --accent-color: #f59e0b;
+            --bg-color: #f8fafc;
             --card-bg: #ffffff;
-            --text-dark: #333333;
-            --text-muted: #666666;
-            --status-avail: #2ecc71;
-            --status-booked: #e74c3c;
+            --text-main: #1e293b;
+            --border-color: #e2e8f0;
         }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-light);
+            background-color: var(--bg-color);
+            color: var(--text-main);
             margin: 0;
             padding: 0;
-            color: var(--text-dark);
         }
 
-        /* Navbar Layout */
-        .navbar {
+        header {
             background-color: var(--primary-color);
             color: white;
-            padding: 15px 30px;
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
             border-bottom: 4px solid var(--accent-color);
         }
 
-        .navbar h1 {
+        header h1 {
             margin: 0;
             font-size: 1.5rem;
         }
 
-        .nav-buttons .btn {
+        .nav-btn {
             background-color: transparent;
             color: white;
             border: 1px solid white;
-            padding: 8px 16px;
-            text-decoration: none;
+            padding: 0.5rem 1rem;
             border-radius: 4px;
-            margin-left: 10px;
-            font-weight: 500;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            margin-left: 0.5rem;
             transition: all 0.3s ease;
         }
 
-        .nav-buttons .btn:hover {
+        .nav-btn:hover {
             background-color: white;
             color: var(--primary-color);
         }
 
-        .nav-buttons .btn-reset {
-            background-color: #34495e;
-            border-color: #34495e;
+        .nav-btn.active {
+            background-color: #334155;
+            border-color: #334155;
         }
 
-        /* Container & Form Layout */
         .container {
-            max-width: 1100px;
-            margin: 30px auto;
-            padding: 0 20px;
+            max-width: 1000px;
+            margin: 2rem auto;
+            padding: 0 1rem;
         }
 
-        .search-box {
-            background-color: var(--card-bg);
-            padding: 25px;
+        .search-card {
+            background: var(--card-bg);
+            padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 15px;
-            margin-bottom: 30px;
+            gap: 1rem;
         }
 
-        .search-box label {
-            font-size: 1.1rem;
+        .search-card label {
             font-weight: 600;
         }
 
-        .search-box input[type="date"] {
-            padding: 10px 15px;
-            font-size: 1rem;
-            border: 1px solid #cccccc;
+        .search-card input[type="date"] {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
             border-radius: 4px;
-            outline: none;
+            font-size: 1rem;
         }
 
-        /* Dynamic Grid Layout */
-        .convention-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 25px;
-        }
-
-        /* Convention Box Styles */
-        .convention-box {
-            background-color: var(--card-bg);
+        .venue-card {
+            background: var(--card-bg);
             border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-            padding: 20px;
-            border-top: 5px solid var(--accent-color);
-            display: flex;
-            flex-direction: column;
+            border-left: 5px solid var(--accent-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            margin-bottom: 1.5rem;
+            padding: 1.5rem;
         }
 
-        .convention-header {
-            margin: 0 0 15px 0;
-            font-size: 1.4rem;
+        .venue-title {
+            font-size: 1.3rem;
+            margin-top: 0;
+            margin-bottom: 1rem;
             color: var(--primary-color);
-            border-bottom: 1px solid #eeeeee;
-            padding-bottom: 10px;
-            text-transform: capitalize;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.5rem;
         }
 
-        /* Hall Section Layout */
-        .hall-section {
-            background-color: #f9fbfd;
-            border: 1px solid #eef2f5;
+        .hall-row {
+            background: #f1f5f9;
+            padding: 1rem;
             border-radius: 6px;
-            padding: 12px;
-            margin-bottom: 15px;
-        }
-
-        .hall-section:last-child {
-            margin-bottom: 0;
-        }
-
-        .hall-title {
-            margin: 0 0 8px 0;
-            font-size: 1.05rem;
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-
-        /* Slots Layout */
-        .slots-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .slot-item {
+            margin-bottom: 0.75rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
-            border-bottom: 1px dashed #e2e8f0;
-            font-size: 0.95rem;
         }
 
-        .slot-item:last-child {
-            border-bottom: none;
+        .hall-info em {
+            font-style: normal;
+            font-weight: 600;
+            color: #475569;
         }
 
-        /* Status Pills */
         .status-badge {
-            padding: 3px 8px;
+            padding: 0.25rem 0.75rem;
             border-radius: 4px;
+            font-weight: 600;
             font-size: 0.85rem;
-            font-weight: bold;
-            text-transform: capitalize;
-        }
-
-        .status-available {
-            background-color: #e8f8f0;
-            color: var(--status-avail);
         }
 
         .status-booked {
-            background-color: #fdedec;
-            color: var(--status-booked);
+            background-color: #fee2e2;
+            color: #ef4444;
         }
 
-        /* Info Messaging */
-        .message-box {
-            background-color: #eaf2f8;
-            border-left: 5px solid #2980b9;
-            padding: 15px;
-            border-radius: 4px;
-            text-align: center;
-            font-size: 1.1rem;
-            grid-column: 1 / -1;
+        .status-available {
+            background-color: #dcfce7;
+            color: #22c55e;
         }
     </style>
 </head>
 <body>
 
-    <div class="navbar">
+    <header>
         <h1>Convention Hall Booking System</h1>
-        <div class="nav-buttons">
-            <a href="index.html" class="btn">Home</a>
-            <a href="#" onclick="window.location.reload();" class="btn btn-reset">Reset</a>
+        <div>
+            <a href="index.html" class="nav-btn">Home</a>
+            <button onclick="resetForm()" class="nav-btn active">Reset</button>
         </div>
-    </div>
+    </header>
 
     <div class="container">
-        <div class="search-box">
+        <div class="search-card">
             <label for="booking-date">Select Date from Calendar:</label>
-            <input type="date" id="booking-date" onchange="handleDateChange(this.value)">
+            <input type="date" id="booking-date" value="2026-06-06" onchange="handleDateChange(this.value)">
         </div>
 
-        <div id="convention-containers-wrapper" class="convention-grid">
-            <div class="message-box">Please select a date above to check current availability.</div>
-        </div>
+        <div id="availability-container">
+            
+            <div class="venue-card">
+                <h2 class="venue-title">HY ONE (Vattinagulapally)</h2>
+                
+                <div class="hall-row">
+                    <div class="hall-info">
+                        <strong>Hall Type:</strong> <span>HY 1 FULL (2000 Pac)</span><br>
+                        <small>Time Slot: 09:00 AM - 03:00 PM</small>
+                    </div>
+                    <span class="status-badge status-booked">Booked</span>
+                </div>
+
+                <div class="hall-row">
+                    <div class="hall-info">
+                        <strong>Hall Type:</strong> <span>HY 1 FULL (2000 Pac)</span><br>
+                        <small>Time Slot: 04:00 PM - 10:00 PM</small>
+                    </div>
+                    <span class="status-badge status-available">Available</span>
+                </div>
+            </div>
+
+            </div>
     </div>
 
     <script>
-        // Set default input value to today's date on window load
-        window.addEventListener('DOMContentLoaded', () => {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('booking-date').value = today;
-            handleDateChange(today);
-        });
-
-        // Event handler executing calculations on date selection change
-        async function handleDateChange(selectedDate) {
-            const wrapper = document.getElementById('convention-containers-wrapper');
-            if (!selectedDate) {
-                wrapper.innerHTML = '<div class="message-box">Please choose a valid date.</div>';
-                return;
-            }
-
-            wrapper.innerHTML = '<div class="message-box">Fetching live schedules from G Sheet...</div>';
-
-            try {
-                // 1. Fetching raw data array from Google Apps Script Web App
-                const sheetData = await fetchGoogleSheetData(selectedDate);
-
-                if (!sheetData || sheetData.length === 0) {
-                    wrapper.innerHTML = '<div class="message-box">🎉 All Slots Available! No reservations found for this date.</div>';
-                    return;
-                }
-
-                // Clear layout container to process fresh nodes
-                wrapper.innerHTML = '';
-
-                // 2. Group records by "Convention Name"
-                const groupedByConvention = {};
-                sheetData.forEach(row => {
-                    // Clean up trailing/leading spaces from input data
-                    const conventionName = row["Convention Name"] ? row["Convention Name"].trim() : "Unnamed Convention";
-                    if (!groupedByConvention[conventionName]) {
-                        groupedByConvention[conventionName] = [];
-                    }
-                    groupedByConvention[conventionName].push(row);
-                });
-
-                // 3. Build HTML Modules dynamically per unique Convention Name
-                for (const conventionName in groupedByConvention) {
-                    
-                    const conventionBox = document.createElement('div');
-                    conventionBox.className = 'convention-box';
-
-                    // Heading Header Construction
-                    const header = document.createElement('h2');
-                    header.className = 'convention-header';
-                    header.textContent = conventionName;
-                    conventionBox.appendChild(header);
-
-                    // Sub-group rows under this specific Convention by "Hall Type"
-                    const groupedByHall = {};
-                    groupedByConvention[conventionName].forEach(row => {
-                        const hallType = row["Hall Type"] ? row["Hall Type"].trim() : "General Hall";
-                        if (!groupedByHall[hallType]) {
-                            groupedByHall[hallType] = [];
-                        }
-                        groupedByHall[hallType].push(row);
-                    });
-
-                    // 4. Build Hall Sections loop inside the parent Convention Box
-                    for (const hallType in groupedByHall) {
-                        const hallSection = document.createElement('div');
-                        hallSection.className = 'hall-section';
-
-                        const hallTitle = document.createElement('h3');
-                        hallTitle.className = 'hall-title';
-                        hallTitle.textContent = `Hall Type: ${hallType}`;
-                        hallSection.appendChild(hallTitle);
-
-                        const slotsList = document.createElement('ul');
-                        slotsList.className = 'slots-list';
-
-                        // Loop through slot details
-                        groupedByHall[hallType].forEach(slotInfo => {
-                            const listItem = document.createElement('li');
-                            listItem.className = 'slot-item';
-
-                            // Validate status structure - default fallback logic to "Available"
-                            let status = "Available";
-                            if (slotInfo["Status"] && slotInfo["Status"].toString().trim() !== "") {
-                                status = slotInfo["Status"].toString().trim();
-                            }
-
-                            const cleanStatusClass = status.toLowerCase() === 'booked' ? 'status-booked' : 'status-available';
-
-                            listItem.innerHTML = `
-                                <span><strong>Time Slot:</strong> ${slotInfo["Time Slot"] || 'N/A'}</span>
-                                <span class="status-badge ${cleanStatusClass}">${status}</span>
-                            `;
-                            slotsList.appendChild(listItem);
-                        });
-
-                        hallSection.appendChild(slotsList);
-                        conventionBox.appendChild(hallSection);
-                    }
-
-                    // Append completed parent element block to the view page grid wrapper
-                    wrapper.appendChild(conventionBox);
-                }
-
-            } catch (error) {
-                console.error("Error structuralizing sheet data processing: ", error);
-                wrapper.innerHTML = '<div class="message-box" style="color:red; background-color:#fce4d6;">Error loading data sheet configurations. Please try refreshing again.</div>';
-            }
+        function handleDateChange(selectedDate) {
+            console.log("Checking availability data for date: " + selectedDate);
+            // Dynamic check or spreadsheet data integration pipeline triggers here
         }
 
-        /**
-         * Live Data Fetching Wrapper linked to your form database
-         */
-        async function fetchGoogleSheetData(dateString) {
-            // ⚠️ REPLACE THIS with your deployed Google Apps Script Web App URL
-            const webAppUrl = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL";
-            
-            try {
-                const response = await fetch(`${webAppUrl}?date=${dateString}`);
-                if (!response.ok) throw new Error('Network response error');
-                
-                const data = await response.json();
-                return data; 
-                
-            } catch (error) {
-                console.error("Failed to connect to Google Sheet database, showing fallback data:", error);
-                
-                // Fallback mock structure showing the 3 distinct boxes if the database link is not pasted yet
-                return [
-                    { "Convention Name": "Convention Venue Alpha", "Hall Type": "Main AC Hall", "Time Slot": "09:00 AM - 03:00 PM", "Status": "Booked" },
-                    { "Convention Name": "Convention Venue Alpha", "Hall Type": "Mini Hall", "Time Slot": "04:00 PM - 10:00 PM", "Status": "" }, 
-                    { "Convention Name": "Convention Venue Beta", "Hall Type": "Open Lawn Area", "Time Slot": "05:00 PM - 11:00 PM", "Status": "Available" },
-                    { "Convention Name": "Convention Venue Gamma", "Hall Type": "Conference Room", "Time Slot": "11:00 AM - 02:00 PM", "Status": "Booked" }
-                ];
-            }
+        function resetForm() {
+            document.getElementById('booking-date').value = '2026-06-06';
+            handleDateChange('2026-06-06');
         }
     </script>
+
 </body>
 </html>
