@@ -177,17 +177,17 @@
     </div>
 
     <script>
-        // Data Sheet Configuration (Sources valid convention rooms & configurations)
+        // CONFIGURATION: Using explicit 'gid=674743151' parameter to force fetch from "Convention Name" tab
         const CONFIG_SHEET_ID = '10f5ZR-SVv7wBcVH0YmNCHYVudA8jVhnmAF7bsnb0c_8';
-        const CONFIG_SHEET_URL = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Convention%20Name`;
+        const CONFIG_SHEET_URL = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv&gid=674743151`;
 
-        // Response Tracker Booking Sheet Configuration
+        // RESPONSE SHEET: Dynamic entries from booking responses
         const RESPONSE_SHEET_ID = '1d1p4yzhK-nYB5qn7gmzDu0-YHiRPARAmXK_mSYzeDj4';
         const RESPONSE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${RESPONSE_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
         let masterVenues = [];
 
-        // Human readable date converter
+        // Convert date string into a user-friendly layout
         function formatDateString(dateStr) {
             if (!dateStr) return "";
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -195,15 +195,16 @@
             return dateObj.toLocaleDateString('en-US', options);
         }
 
-        // Fetches allowed venues and their hall mappings from the Config Sheet
+        // Fetches all available conventions and hall layouts directly from your specific GSheet configuration tab
         async function fetchMasterVenues() {
             try {
                 const response = await fetch(CONFIG_SHEET_URL);
                 const csvText = await response.text();
                 masterVenues = parseConfigCSV(csvText);
+                console.log("Loaded Conventions from Configuration Tab:", masterVenues);
             } catch (error) {
                 console.error("Error pulling master convention configurations:", error);
-                // Resilient baseline fallback matching structural expectation if network hits blockades
+                // Fallback architecture to keep app functional if sheet connection drops
                 masterVenues = [
                     { name: "HY ONE (Vattinagulapally)", halls: ["HY 1 FULL (2000 Pac)"] }
                 ];
@@ -214,16 +215,18 @@
             const lines = text.split('\n');
             const venueMap = {};
 
-            // Assuming Structure: Column A = "Convention Name", Column B = "Hall Type"
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
+                
+                // Splitting CSV rows safely while ignoring internal commas contained inside quotation marks
                 const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
                 
                 if (row.length >= 2) {
                     const venueName = row[0];
                     const hallType = row[1];
                     
-                    if (venueName && venueName !== "Convention Name") {
+                    // Skipping empty rows, labels, or table header titles
+                    if (venueName && venueName !== "Convention Name" && venueName !== "") {
                         if (!venueMap[venueName]) {
                             venueMap[venueName] = new Set();
                         }
@@ -250,24 +253,24 @@
             const container = document.getElementById('availability-container');
             container.innerHTML = '<div class="loading-text">Fetching current live registry availability...</div>';
 
-            // Ensure master venue configurations from spreadsheet are parsed
+            // Always ensure the dynamic configuration is fetched first
             if (masterVenues.length === 0) {
                 await fetchMasterVenues();
             }
 
             try {
-                // Fetch dynamic entries from booking system response sheet
                 const response = await fetch(RESPONSE_SHEET_URL);
                 const csvText = await response.text();
                 const bookedEntries = parseResponseCSV(csvText);
 
-                // Filter rows matching targeted target selection date 
+                // Filter rows matching the user's selected calendar date
                 const activeBookingsOnDate = bookedEntries.filter(entry => entry.date === selectedDate);
                 
                 renderAvailabilityMatrix(activeBookingsOnDate);
             } catch (error) {
-                console.error("Error reading response records:", error);
-                renderAvailabilityMatrix([]); // Fallback seamlessly to complete open availability layout on failure
+                console.error("Error reading response sheet entries:", error);
+                // Fallback directly to showing all conventions as "Available" if booking sheet is offline
+                renderAvailabilityMatrix([]);
             }
         }
 
@@ -306,32 +309,48 @@
             const container = document.getElementById('availability-container');
             container.innerHTML = ""; 
 
+            if (masterVenues.length === 0) {
+                container.innerHTML = '<div class="loading-text">No active conventions discovered in your configuration.</div>';
+                return;
+            }
+
             masterVenues.forEach(venue => {
                 let venueCard = document.createElement('div');
                 venueCard.className = 'venue-card';
                 
                 let htmlContent = `<h2 class="venue-title">${venue.name}</h2>`;
                 
-                venue.halls.forEach(hall => {
-                    // cross check structural matches within real-time records
-                    const structuralMatch = bookedItems.some(booking => 
-                        booking.venueName.toLowerCase() === venue.name.toLowerCase() && 
-                        booking.hallType.toLowerCase() === hall.toLowerCase()
-                    );
-
-                    // If match isn't explicitly entered on the sheet, layout safely defaults to "Available"
-                    const statusText = structuralMatch ? "Booked" : "Available";
-                    const statusClass = structuralMatch ? "status-booked" : "status-available";
-
+                // If a convention does not have any specific hall mapped, display one fallback line item
+                if (venue.halls.length === 0) {
                     htmlContent += `
                         <div class="hall-row">
                             <div class="hall-info">
-                                <strong>Hall Type:</strong> <span>${hall}</span>
+                                <strong>Hall Type:</strong> <span style="font-style: italic; color: #94a3b8;">Not Specified</span>
                             </div>
-                            <span class="status-badge ${statusClass}">${statusText}</span>
+                            <span class="status-badge status-available">Available</span>
                         </div>
                     `;
-                });
+                } else {
+                    venue.halls.forEach(hall => {
+                        // Check if booking response matching this specific combination exists on the target date
+                        const structuralMatch = bookedItems.some(booking => 
+                            booking.venueName.toLowerCase() === venue.name.toLowerCase() && 
+                            booking.hallType.toLowerCase() === hall.toLowerCase()
+                        );
+
+                        const statusText = structuralMatch ? "Booked" : "Available";
+                        const statusClass = structuralMatch ? "status-booked" : "status-available";
+
+                        htmlContent += `
+                            <div class="hall-row">
+                                <div class="hall-info">
+                                <strong>Hall Type:</strong> <span>${hall}</span>
+                                </div>
+                                <span class="status-badge ${statusClass}">${statusText}</span>
+                            </div>
+                        `;
+                    });
+                }
 
                 venueCard.innerHTML = htmlContent;
                 container.appendChild(venueCard);
@@ -348,7 +367,7 @@
             clearDisplay();
         }
 
-        // Instantly download dynamic asset profiles right as window initiates
+        // Automatically fetch layout definitions in the background as the page starts up
         window.onload = function() {
             fetchMasterVenues();
         };
