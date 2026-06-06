@@ -6,376 +6,196 @@
     <title>Date Availability - Convention Hall</title>
     <style>
         :root {
-            --primary-color: #0f172a;
-            --accent-color: #f59e0b;
-            --bg-color: #f8fafc;
+            --bg-color: #0f172a;
             --card-bg: #ffffff;
-            --text-main: #1e293b;
-            --border-color: #e2e8f0;
+            --text-dark: #1e293b;
+            --text-muted: #64748b;
+            --primary: #0284c7;
+            --accent: #f59e0b;
+            --success-bg: #f0fdf4;
+            --success-text: #16a34a;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: #f8fafc;
             margin: 0;
             padding: 0;
+            color: var(--text-dark);
         }
 
-        header {
-            background-color: var(--primary-color);
+        /* Navbar Header */
+        .navbar {
+            background-color: var(--bg-color);
             color: white;
             padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 4px solid var(--accent-color);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
         }
 
-        header h1 {
+        .navbar h1 {
             margin: 0;
             font-size: 1.5rem;
         }
 
-        .nav-btn {
-            background-color: transparent;
+        .nav-buttons .btn {
+            background: transparent;
             color: white;
             border: 1px solid white;
             padding: 0.5rem 1rem;
             border-radius: 4px;
-            cursor: pointer;
             text-decoration: none;
-            font-size: 0.9rem;
             margin-left: 0.5rem;
-            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            transition: all 0.2s;
         }
 
-        .nav-btn:hover {
+        .nav-buttons .btn:hover {
             background-color: white;
-            color: var(--primary-color);
+            color: var(--bg-color);
         }
 
+        /* Main Layout */
         .container {
-            max-width: 1000px;
+            max-width: 800px;
             margin: 2rem auto;
             padding: 0 1rem;
         }
 
+        /* Search Box Card */
         .search-card {
             background: var(--card-bg);
-            padding: 2rem;
             border-radius: 8px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-            margin-bottom: 2rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            gap: 0.5rem;
+            padding: 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            text-align: center;
+            margin-bottom: 1.5rem;
         }
 
         .search-card label {
+            display: block;
             font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
         }
 
         .search-card input[type="date"] {
-            padding: 0.6rem 1rem;
-            border: 2px solid var(--border-color);
-            border-radius: 6px;
+            padding: 0.75rem 1rem;
             font-size: 1rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
             outline: none;
             transition: border-color 0.2s;
         }
 
         .search-card input[type="date"]:focus {
-            border-color: var(--accent-color);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.1);
         }
 
-        .date-display-banner {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: var(--primary-color);
-            margin-bottom: 1rem;
+        /* Status / Instruction Text */
+        .status-message {
             text-align: center;
-            min-height: 1.5rem;
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: var(--bg-color);
+            margin: 2rem 0;
         }
 
-        .venue-card {
+        /* Results Card Container (Hidden by Default) */
+        .availability-card {
+            display: none; /* Keeps it hidden until JS changes it to 'block' */
             background: var(--card-bg);
+            border-left: 5px solid var(--accent);
             border-radius: 8px;
-            border-left: 5px solid var(--accent-color);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-            margin-bottom: 1.5rem;
-            padding: 1.5rem;
+            padding: 1.5rem 2rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05);
         }
 
-        .venue-title {
-            font-size: 1.3rem;
+        .availability-card h2 {
             margin-top: 0;
             margin-bottom: 1rem;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.5rem;
+            color: #334155;
+            font-size: 1.35rem;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 0.75rem;
         }
 
-        .hall-row {
-            background: #f1f5f9;
-            padding: 1rem;
-            border-radius: 6px;
-            margin-bottom: 0.75rem;
+        .hall-info-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            background-color: #f8fafc;
+            padding: 1rem;
+            border-radius: 6px;
+        }
+
+        .hall-type {
+            color: var(--text-muted);
+        }
+
+        .hall-type strong {
+            color: var(--text-dark);
         }
 
         .status-badge {
-            padding: 0.25rem 0.75rem;
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            padding: 0.35rem 0.75rem;
             border-radius: 4px;
             font-weight: 600;
             font-size: 0.85rem;
-        }
-
-        .status-booked {
-            background-color: #fee2e2;
-            color: #ef4444;
-        }
-
-        .status-available {
-            background-color: #dcfce7;
-            color: #22c55e;
-        }
-        
-        .loading-text {
-            text-align: center;
-            color: #64748b;
-            font-style: italic;
         }
     </style>
 </head>
 <body>
 
-    <header>
+    <header class="navbar">
         <h1>Convention Hall Booking System</h1>
-        <div>
-            <a href="index.html" class="nav-btn">Home</a>
-            <button onclick="resetForm()" class="nav-btn">Reset</button>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn">Home</a>
+            <a href="date-check.html" class="btn">Reset</a>
         </div>
     </header>
 
-    <div class="container">
+    <main class="container">
+        
         <div class="search-card">
             <label for="booking-date">Select Date from Calendar:</label>
-            <input type="date" id="booking-date" onchange="handleDateChange(this.value)">
+            <input type="date" id="booking-date">
         </div>
 
-        <div class="date-display-banner" id="current-date-banner">
+        <div id="status-instruction" class="status-message">
             Please select a date to view availability schedule.
         </div>
 
-        <div id="availability-container">
+        <div id="availability-card" class="availability-card">
+            <h2>HY ONE (Vattinagulapally)</h2>
+            <div class="hall-info-row">
+                <span class="hall-type">Hall Type: <strong>HY 1 FULL (2000 Pac)</strong></span>
+                <span class="status-badge">Available</span>
             </div>
-    </div>
+        </div>
+
+    </main>
 
     <script>
-        // Configuration: Explicitly points to the "Convention Name" tab via gid=674743151
-        const CONFIG_SHEET_ID = '10f5ZR-SVv7wBcVH0YmNCHYVudA8jVhnmAF7bsnb0c_8';
-        const CONFIG_SHEET_URL = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv&gid=674743151`;
-
-        // Response Tracker: User-submitted booking logs
-        const RESPONSE_SHEET_ID = '1d1p4yzhK-nYB5qn7gmzDu0-YHiRPARAmXK_mSYzeDj4';
-        const RESPONSE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${RESPONSE_SHEET_ID}/gviz/tq?tqx=out:csv`;
-
-        let masterVenues = [];
-
-        function formatDateString(dateStr) {
-            if (!dateStr) return "";
-            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            const dateObj = new Date(dateStr);
-            return dateObj.toLocaleDateString('en-US', options);
-        }
-
-        // Pulls dynamic names from the configuration tab sheet
-        async function fetchMasterVenues() {
-            try {
-                const response = await fetch(CONFIG_SHEET_URL);
-                const csvText = await response.text();
-                masterVenues = parseConfigCSV(csvText);
-                console.log("Successfully parsed master venues from tab:", masterVenues);
-            } catch (error) {
-                console.error("Error pulling master configurations:", error);
-                // Resilient local array fallback in case of connection dropouts
-                masterVenues = [
-                    { name: "HY ONE (Vattinagulapally)", halls: ["HY 1 FULL (2000 Pac)"] }
-                ];
-                renderAvailabilityMatrix([]);
-            }
-        }
-
-        // Upgraded CSV parser handling carriage return breaks safely
-        function parseConfigCSV(text) {
-            // Split strictly avoiding hidden \r characters from standard Windows newline encodings
-            const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-            if (lines.length === 0) return [];
-
-            const venueMap = {};
+        document.getElementById('booking-date').addEventListener('change', function() {
+            const availabilityCard = document.getElementById('availability-card');
+            const statusInstruction = document.getElementById('status-instruction');
             
-            // Map indexes via data column header strings
-            const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
-            
-            let nameIndex = headers.findIndex(h => h.toLowerCase() === 'convention name');
-            let hallIndex = headers.findIndex(h => h.toLowerCase() === 'hall type');
-
-            // Hard fallback if headers are completely absent
-            if (nameIndex === -1) nameIndex = 0;
-            if (hallIndex === -1) hallIndex = 1;
-
-            for (let i = 1; i < lines.length; i++) {
-                const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
-                
-                if (row.length > Math.max(nameIndex, hallIndex)) {
-                    const venueName = row[nameIndex];
-                    const hallType = row[hallIndex];
-                    
-                    if (venueName && venueName !== "" && venueName.toLowerCase() !== 'convention name') {
-                        if (!venueMap[venueName]) {
-                            venueMap[venueName] = new Set();
-                        }
-                        if (hallType && hallType !== "") {
-                            venueMap[venueName].add(hallType);
-                        }
-                    }
-                }
+            if (this.value) {
+                // A date has been picked: Hide instruction text and show the venue status
+                statusInstruction.style.display = 'none';
+                availabilityCard.style.display = 'block';
+            } else {
+                // Field was cleared: Bring back instructions and hide venue status
+                statusInstruction.style.display = 'block';
+                availabilityCard.style.display = 'none';
             }
-
-            return Object.keys(venueMap).map(name => ({
-                name: name,
-                halls: Array.from(venueMap[name])
-            }));
-        }
-
-        async function handleDateChange(selectedDate) {
-            if (!selectedDate) {
-                clearDisplay();
-                return;
-            }
-
-            document.getElementById('current-date-banner').innerText = "Showing Schedule for: " + formatDateString(selectedDate);
-            const container = document.getElementById('availability-container');
-            container.innerHTML = '<div class="loading-text">Fetching current live registry availability...</div>';
-
-            // Ensure the configuration properties are compiled
-            if (masterVenues.length === 0) {
-                await fetchMasterVenues();
-            }
-
-            try {
-                const response = await fetch(RESPONSE_SHEET_URL);
-                const csvText = await response.text();
-                const bookedEntries = parseResponseCSV(csvText);
-
-                const activeBookingsOnDate = bookedEntries.filter(entry => entry.date === selectedDate);
-                renderAvailabilityMatrix(activeBookingsOnDate);
-            } catch (error) {
-                console.error("Error reading response data streams:", error);
-                renderAvailabilityMatrix([]); // Render everything as Available if connection times out
-            }
-        }
-
-        function parseResponseCSV(text) {
-            const lines = text.split(/\r?\n/);
-            const records = [];
-            
-            for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                const entryRow = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim());
-                
-                if (entryRow.length >= 4) {
-                    let explicitDate = rawDateNormalize(entryRow[1]); 
-                    records.push({
-                        timestamp: entryRow[0],
-                        date: explicitDate,
-                        venueName: entryRow[2],
-                        hallType: entryRow[3]
-                    });
-                }
-            }
-            return records;
-        }
-
-        function rawDateNormalize(dateStr) {
-            if(!dateStr) return "";
-            try {
-                const parts = dateStr.split(/[-/]/);
-                if(parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
-                if(parts[2] && parts[2].length === 4) return `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
-            } catch(e) {}
-            return dateStr;
-        }
-
-        function renderAvailabilityMatrix(bookedItems) {
-            const container = document.getElementById('availability-container');
-            container.innerHTML = ""; 
-
-            if (masterVenues.length === 0) {
-                container.innerHTML = '<div class="loading-text">No active conventions found in the Configuration sheet. Please check your tab data.</div>';
-                return;
-            }
-
-            masterVenues.forEach(venue => {
-                let venueCard = document.createElement('div');
-                venueCard.className = 'venue-card';
-                
-                let htmlContent = `<h2 class="venue-title">${venue.name}</h2>`;
-                
-                if (venue.halls.length === 0) {
-                    htmlContent += `
-                        <div class="hall-row">
-                            <div class="hall-info">
-                                <strong>Hall Type:</strong> <span style="font-style: italic; color: #94a3b8;">Main Hall Space</span>
-                            </div>
-                            <span class="status-badge status-available">Available</span>
-                        </div>
-                    `;
-                } else {
-                    venue.halls.forEach(hall => {
-                        const structuralMatch = bookedItems.some(booking => 
-                            booking.venueName.toLowerCase() === venue.name.toLowerCase() && 
-                            booking.hallType.toLowerCase() === hall.toLowerCase()
-                        );
-
-                        const statusText = structuralMatch ? "Booked" : "Available";
-                        const statusClass = structuralMatch ? "status-booked" : "status-available";
-
-                        htmlContent += `
-                            <div class="hall-row">
-                                <div class="hall-info">
-                                    <strong>Hall Type:</strong> <span>${hall}</span>
-                                </div>
-                                <span class="status-badge ${statusClass}">${statusText}</span>
-                            </div>
-                        `;
-                    });
-                }
-
-                venueCard.innerHTML = htmlContent;
-                container.appendChild(venueCard);
-            });
-        }
-
-        function clearDisplay() {
-            document.getElementById('current-date-banner').innerText = "Please select a date to view availability schedule.";
-            document.getElementById('availability-container').innerHTML = "";
-        }
-
-        function resetForm() {
-            document.getElementById('booking-date').value = "";
-            clearDisplay();
-        }
-
-        // Initialize setup straight away when loading page
-        window.onload = function() {
-            fetchMasterVenues();
-        };
+        });
     </script>
 
 </body>
