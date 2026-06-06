@@ -118,6 +118,7 @@
             color: var(--primary-color);
             border-bottom: 1px solid #eeeeee;
             padding-bottom: 10px;
+            text-transform: capitalize;
         }
 
         /* Hall Section Layout */
@@ -231,7 +232,7 @@
             wrapper.innerHTML = '<div class="message-box">Fetching live schedules from G Sheet...</div>';
 
             try {
-                // 1. Fetching raw data array from your custom Google Sheet implementation
+                // 1. Fetching raw data array from Google Apps Script Web App
                 const sheetData = await fetchGoogleSheetData(selectedDate);
 
                 if (!sheetData || sheetData.length === 0) {
@@ -239,20 +240,21 @@
                     return;
                 }
 
+                // Clear layout container to process fresh nodes
+                wrapper.innerHTML = '';
+
                 // 2. Group records by "Convention Name"
                 const groupedByConvention = {};
                 sheetData.forEach(row => {
-                    const conventionName = row["Convention Name"] || "Unnamed Convention";
+                    // Clean up trailing/leading spaces from input data
+                    const conventionName = row["Convention Name"] ? row["Convention Name"].trim() : "Unnamed Convention";
                     if (!groupedByConvention[conventionName]) {
                         groupedByConvention[conventionName] = [];
                     }
                     groupedByConvention[conventionName].push(row);
                 });
 
-                // Clear layout container to process updated nodes
-                wrapper.innerHTML = '';
-
-                // 3. Build HTML Modules dynamically per Convention Name
+                // 3. Build HTML Modules dynamically per unique Convention Name
                 for (const conventionName in groupedByConvention) {
                     
                     const conventionBox = document.createElement('div');
@@ -267,7 +269,7 @@
                     // Sub-group rows under this specific Convention by "Hall Type"
                     const groupedByHall = {};
                     groupedByConvention[conventionName].forEach(row => {
-                        const hallType = row["Hall Type"] || "General Hall";
+                        const hallType = row["Hall Type"] ? row["Hall Type"].trim() : "General Hall";
                         if (!groupedByHall[hallType]) {
                             groupedByHall[hallType] = [];
                         }
@@ -294,8 +296,8 @@
 
                             // Validate status structure - default fallback logic to "Available"
                             let status = "Available";
-                            if (slotInfo["Status"] && slotInfo["Status"].trim() !== "") {
-                                status = slotInfo["Status"].trim();
+                            if (slotInfo["Status"] && slotInfo["Status"].toString().trim() !== "") {
+                                status = slotInfo["Status"].toString().trim();
                             }
 
                             const cleanStatusClass = status.toLowerCase() === 'booked' ? 'status-booked' : 'status-available';
@@ -322,19 +324,30 @@
         }
 
         /**
-         * Placeholder Data Fetching Wrapper
-         * Connect this implementation step directly into your live operational backend / Google Apps Script macro Web App URL fetch block.
+         * Live Data Fetching Wrapper linked to your form database
          */
         async function fetchGoogleSheetData(dateString) {
-            // REPLACE THIS mock structure setup below with your functional macro endpoint URL fetch operations
-            // Example: return fetch(`YOUR_APPS_SCRIPT_WEBAPP_URL?date=${dateString}`).then(res => res.json());
+            // ⚠️ REPLACE THIS with your deployed Google Apps Script Web App URL
+            const webAppUrl = "YOUR_DEPLOYED_APPS_SCRIPT_WEB_APP_URL";
             
-            return [
-                { "Convention Name": "Grand Palace Venue", "Hall Type": "Main AC Hall", "Time Slot": "09:00 AM - 03:00 PM", "Status": "Booked" },
-                { "Convention Name": "Grand Palace Venue", "Hall Type": "Main AC Hall", "Time Slot": "04:00 PM - 10:00 PM", "Status": "" }, // Should show Available
-                { "Convention Name": "Grand Palace Venue", "Hall Type": "Mini Hall", "Time Slot": "10:00 AM - 04:00 PM", "Status": "Booked" },
-                { "Convention Name": "Royal Orchid Centre", "Hall Type": "Open Lawn Area", "Time Slot": "05:00 PM - 11:00 PM", "Status": "Available" }
-            ];
+            try {
+                const response = await fetch(`${webAppUrl}?date=${dateString}`);
+                if (!response.ok) throw new Error('Network response error');
+                
+                const data = await response.json();
+                return data; 
+                
+            } catch (error) {
+                console.error("Failed to connect to Google Sheet database, showing fallback data:", error);
+                
+                // Fallback mock structure showing the 3 distinct boxes if the database link is not pasted yet
+                return [
+                    { "Convention Name": "Convention Venue Alpha", "Hall Type": "Main AC Hall", "Time Slot": "09:00 AM - 03:00 PM", "Status": "Booked" },
+                    { "Convention Name": "Convention Venue Alpha", "Hall Type": "Mini Hall", "Time Slot": "04:00 PM - 10:00 PM", "Status": "" }, 
+                    { "Convention Name": "Convention Venue Beta", "Hall Type": "Open Lawn Area", "Time Slot": "05:00 PM - 11:00 PM", "Status": "Available" },
+                    { "Convention Name": "Convention Venue Gamma", "Hall Type": "Conference Room", "Time Slot": "11:00 AM - 02:00 PM", "Status": "Booked" }
+                ];
+            }
         }
     </script>
 </body>
