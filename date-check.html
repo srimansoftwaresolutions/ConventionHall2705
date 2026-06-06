@@ -177,17 +177,16 @@
     </div>
 
     <script>
-        // CONFIGURATION: Using explicit 'gid=674743151' parameter to force fetch from "Convention Name" tab
+        // Configuration: Explicitly points to the "Convention Name" tab via gid=674743151
         const CONFIG_SHEET_ID = '10f5ZR-SVv7wBcVH0YmNCHYVudA8jVhnmAF7bsnb0c_8';
         const CONFIG_SHEET_URL = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv&gid=674743151`;
 
-        // RESPONSE SHEET: Dynamic entries from booking responses
+        // Response Tracker: User-submitted booking logs
         const RESPONSE_SHEET_ID = '1d1p4yzhK-nYB5qn7gmzDu0-YHiRPARAmXK_mSYzeDj4';
         const RESPONSE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${RESPONSE_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
         let masterVenues = [];
 
-        // Convert date string into a user-friendly layout
         function formatDateString(dateStr) {
             if (!dateStr) return "";
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
@@ -195,42 +194,53 @@
             return dateObj.toLocaleDateString('en-US', options);
         }
 
-        // Fetches all available conventions and hall layouts directly from your specific GSheet configuration tab
+        // Pulls dynamic names from the configuration tab sheet
         async function fetchMasterVenues() {
             try {
                 const response = await fetch(CONFIG_SHEET_URL);
                 const csvText = await response.text();
                 masterVenues = parseConfigCSV(csvText);
-                console.log("Loaded Conventions from Configuration Tab:", masterVenues);
+                console.log("Successfully parsed master venues from tab:", masterVenues);
             } catch (error) {
-                console.error("Error pulling master convention configurations:", error);
-                // Fallback architecture to keep app functional if sheet connection drops
+                console.error("Error pulling master configurations:", error);
+                // Resilient local array fallback in case of connection dropouts
                 masterVenues = [
                     { name: "HY ONE (Vattinagulapally)", halls: ["HY 1 FULL (2000 Pac)"] }
                 ];
+                renderAvailabilityMatrix([]);
             }
         }
 
+        // Upgraded CSV parser handling carriage return breaks safely
         function parseConfigCSV(text) {
-            const lines = text.split('\n');
+            // Split strictly avoiding hidden \r characters from standard Windows newline encodings
+            const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+            if (lines.length === 0) return [];
+
             const venueMap = {};
+            
+            // Map indexes via data column header strings
+            const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+            
+            let nameIndex = headers.findIndex(h => h.toLowerCase() === 'convention name');
+            let hallIndex = headers.findIndex(h => h.toLowerCase() === 'hall type');
+
+            // Hard fallback if headers are completely absent
+            if (nameIndex === -1) nameIndex = 0;
+            if (hallIndex === -1) hallIndex = 1;
 
             for (let i = 1; i < lines.length; i++) {
-                if (!lines[i].trim()) continue;
-                
-                // Splitting CSV rows safely while ignoring internal commas contained inside quotation marks
                 const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
                 
-                if (row.length >= 2) {
-                    const venueName = row[0];
-                    const hallType = row[1];
+                if (row.length > Math.max(nameIndex, hallIndex)) {
+                    const venueName = row[nameIndex];
+                    const hallType = row[hallIndex];
                     
-                    // Skipping empty rows, labels, or table header titles
-                    if (venueName && venueName !== "Convention Name" && venueName !== "") {
+                    if (venueName && venueName !== "" && venueName.toLowerCase() !== 'convention name') {
                         if (!venueMap[venueName]) {
                             venueMap[venueName] = new Set();
                         }
-                        if (hallType) {
+                        if (hallType && hallType !== "") {
                             venueMap[venueName].add(hallType);
                         }
                     }
@@ -253,7 +263,7 @@
             const container = document.getElementById('availability-container');
             container.innerHTML = '<div class="loading-text">Fetching current live registry availability...</div>';
 
-            // Always ensure the dynamic configuration is fetched first
+            // Ensure the configuration properties are compiled
             if (masterVenues.length === 0) {
                 await fetchMasterVenues();
             }
@@ -263,19 +273,16 @@
                 const csvText = await response.text();
                 const bookedEntries = parseResponseCSV(csvText);
 
-                // Filter rows matching the user's selected calendar date
                 const activeBookingsOnDate = bookedEntries.filter(entry => entry.date === selectedDate);
-                
                 renderAvailabilityMatrix(activeBookingsOnDate);
             } catch (error) {
-                console.error("Error reading response sheet entries:", error);
-                // Fallback directly to showing all conventions as "Available" if booking sheet is offline
-                renderAvailabilityMatrix([]);
+                console.error("Error reading response data streams:", error);
+                renderAvailabilityMatrix([]); // Render everything as Available if connection times out
             }
         }
 
         function parseResponseCSV(text) {
-            const lines = text.split('\n');
+            const lines = text.split(/\r?\n/);
             const records = [];
             
             for (let i = 1; i < lines.length; i++) {
@@ -310,7 +317,7 @@
             container.innerHTML = ""; 
 
             if (masterVenues.length === 0) {
-                container.innerHTML = '<div class="loading-text">No active conventions discovered in your configuration.</div>';
+                container.innerHTML = '<div class="loading-text">No active conventions found in the Configuration sheet. Please check your tab data.</div>';
                 return;
             }
 
@@ -320,19 +327,17 @@
                 
                 let htmlContent = `<h2 class="venue-title">${venue.name}</h2>`;
                 
-                // If a convention does not have any specific hall mapped, display one fallback line item
                 if (venue.halls.length === 0) {
                     htmlContent += `
                         <div class="hall-row">
                             <div class="hall-info">
-                                <strong>Hall Type:</strong> <span style="font-style: italic; color: #94a3b8;">Not Specified</span>
+                                <strong>Hall Type:</strong> <span style="font-style: italic; color: #94a3b8;">Main Hall Space</span>
                             </div>
                             <span class="status-badge status-available">Available</span>
                         </div>
                     `;
                 } else {
                     venue.halls.forEach(hall => {
-                        // Check if booking response matching this specific combination exists on the target date
                         const structuralMatch = bookedItems.some(booking => 
                             booking.venueName.toLowerCase() === venue.name.toLowerCase() && 
                             booking.hallType.toLowerCase() === hall.toLowerCase()
@@ -344,7 +349,7 @@
                         htmlContent += `
                             <div class="hall-row">
                                 <div class="hall-info">
-                                <strong>Hall Type:</strong> <span>${hall}</span>
+                                    <strong>Hall Type:</strong> <span>${hall}</span>
                                 </div>
                                 <span class="status-badge ${statusClass}">${statusText}</span>
                             </div>
@@ -367,7 +372,7 @@
             clearDisplay();
         }
 
-        // Automatically fetch layout definitions in the background as the page starts up
+        // Initialize setup straight away when loading page
         window.onload = function() {
             fetchMasterVenues();
         };
