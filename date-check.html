@@ -177,22 +177,67 @@
     </div>
 
     <script>
-        // Master definition of all tracked properties mapped from form setups
-        const masterVenues = [
-            { name: "HY ONE (Vattinagulapally)", halls: ["HY 1 FULL (2000 Pac)"] },
-            { name: "Grand Palace Convention", halls: ["Main Royal Hall (1500 Pac)", "Imperial Suite (500 Pac)"] },
-            { name: "Metro Celebration Hub", halls: ["Premium Banquet (1000 Pac)"] }
-        ];
+        // Data Sheet Configuration (Sources valid convention rooms & configurations)
+        const CONFIG_SHEET_ID = '10f5ZR-SVv7wBcVH0YmNCHYVudA8jVhnmAF7bsnb0c_8';
+        const CONFIG_SHEET_URL = `https://docs.google.com/spreadsheets/d/${CONFIG_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Convention%20Name`;
 
-        // Google Sheet TSV/CSV Public Export target mapping URL
-        const SPREADSHEET_ID = '1d1p4yzhK-nYB5qn7gmzDu0-YHiRPARAmXK_mSYzeDj4';
-        const G_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+        // Response Tracker Booking Sheet Configuration
+        const RESPONSE_SHEET_ID = '1d1p4yzhK-nYB5qn7gmzDu0-YHiRPARAmXK_mSYzeDj4';
+        const RESPONSE_SHEET_URL = `https://docs.google.com/spreadsheets/d/${RESPONSE_SHEET_ID}/gviz/tq?tqx=out:csv`;
 
+        let masterVenues = [];
+
+        // Human readable date converter
         function formatDateString(dateStr) {
             if (!dateStr) return "";
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const dateObj = new Date(dateStr);
             return dateObj.toLocaleDateString('en-US', options);
+        }
+
+        // Fetches allowed venues and their hall mappings from the Config Sheet
+        async function fetchMasterVenues() {
+            try {
+                const response = await fetch(CONFIG_SHEET_URL);
+                const csvText = await response.text();
+                masterVenues = parseConfigCSV(csvText);
+            } catch (error) {
+                console.error("Error pulling master convention configurations:", error);
+                // Resilient baseline fallback matching structural expectation if network hits blockades
+                masterVenues = [
+                    { name: "HY ONE (Vattinagulapally)", halls: ["HY 1 FULL (2000 Pac)"] }
+                ];
+            }
+        }
+
+        function parseConfigCSV(text) {
+            const lines = text.split('\n');
+            const venueMap = {};
+
+            // Assuming Structure: Column A = "Convention Name", Column B = "Hall Type"
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                const row = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.replace(/^"|"$/g, '').trim());
+                
+                if (row.length >= 2) {
+                    const venueName = row[0];
+                    const hallType = row[1];
+                    
+                    if (venueName && venueName !== "Convention Name") {
+                        if (!venueMap[venueName]) {
+                            venueMap[venueName] = new Set();
+                        }
+                        if (hallType) {
+                            venueMap[venueName].add(hallType);
+                        }
+                    }
+                }
+            }
+
+            return Object.keys(venueMap).map(name => ({
+                name: name,
+                halls: Array.from(venueMap[name])
+            }));
         }
 
         async function handleDateChange(selectedDate) {
@@ -205,39 +250,37 @@
             const container = document.getElementById('availability-container');
             container.innerHTML = '<div class="loading-text">Fetching current live registry availability...</div>';
 
-            try {
-                // Fetch direct CSV matrix output data from Google Sheet Form Responses
-                const response = await fetch(G_SHEET_URL);
-                const csvText = await response.text();
-                const bookedEntries = parseSheetCSV(csvText);
+            // Ensure master venue configurations from spreadsheet are parsed
+            if (masterVenues.length === 0) {
+                await fetchMasterVenues();
+            }
 
-                // Filter sheet rows targeting selected date match
+            try {
+                // Fetch dynamic entries from booking system response sheet
+                const response = await fetch(RESPONSE_SHEET_URL);
+                const csvText = await response.text();
+                const bookedEntries = parseResponseCSV(csvText);
+
+                // Filter rows matching targeted target selection date 
                 const activeBookingsOnDate = bookedEntries.filter(entry => entry.date === selectedDate);
                 
                 renderAvailabilityMatrix(activeBookingsOnDate);
             } catch (error) {
-                console.error("Error reading GSheet records:", error);
-                // Graceful fallback to structural generation logic mapping statuses to "Available" if offline
-                renderAvailabilityMatrix([]);
+                console.error("Error reading response records:", error);
+                renderAvailabilityMatrix([]); // Fallback seamlessly to complete open availability layout on failure
             }
         }
 
-        // Standard CSV Parser converting Google Sheets structural text rows into explicit arrays
-        function parseSheetCSV(text) {
+        function parseResponseCSV(text) {
             const lines = text.split('\n');
             const records = [];
             
-            // Start iterating past header row index
             for (let i = 1; i < lines.length; i++) {
                 if (!lines[i].trim()) continue;
-                
-                // Matches standard comma separation clearing out raw quotation encapsulations
                 const entryRow = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim());
                 
                 if (entryRow.length >= 4) {
-                    // Normalize standard Sheet raw date entries (Transforms matching structures into standardized YYYY-MM-DD formats)
                     let explicitDate = rawDateNormalize(entryRow[1]); 
-                    
                     records.push({
                         timestamp: entryRow[0],
                         date: explicitDate,
@@ -251,7 +294,6 @@
 
         function rawDateNormalize(dateStr) {
             if(!dateStr) return "";
-            // Handle cross platform conversions (e.g., matching MM/DD/YYYY to HTML5 standards YYYY-MM-DD)
             try {
                 const parts = dateStr.split(/[-/]/);
                 if(parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
@@ -271,13 +313,13 @@
                 let htmlContent = `<h2 class="venue-title">${venue.name}</h2>`;
                 
                 venue.halls.forEach(hall => {
-                    // Check if entry matching specific venue and hall combination is inside Google Sheet bookings array
+                    // cross check structural matches within real-time records
                     const structuralMatch = bookedItems.some(booking => 
                         booking.venueName.toLowerCase() === venue.name.toLowerCase() && 
                         booking.hallType.toLowerCase() === hall.toLowerCase()
                     );
 
-                    // If no sheet input match exists for this combination, cleanly fallback to "Available"
+                    // If match isn't explicitly entered on the sheet, layout safely defaults to "Available"
                     const statusText = structuralMatch ? "Booked" : "Available";
                     const statusClass = structuralMatch ? "status-booked" : "status-available";
 
@@ -305,6 +347,11 @@
             document.getElementById('booking-date').value = "";
             clearDisplay();
         }
+
+        // Instantly download dynamic asset profiles right as window initiates
+        window.onload = function() {
+            fetchMasterVenues();
+        };
     </script>
 
 </body>
