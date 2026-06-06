@@ -55,11 +55,6 @@
             color: var(--primary-color);
         }
 
-        .nav-btn.active {
-            background-color: #334155;
-            border-color: #334155;
-        }
-
         .container {
             max-width: 1000px;
             margin: 2rem auto;
@@ -102,6 +97,7 @@
             color: var(--primary-color);
             margin-bottom: 1rem;
             text-align: center;
+            min-height: 1.5rem;
         }
 
         .venue-card {
@@ -132,12 +128,6 @@
             align-items: center;
         }
 
-        .hall-info em {
-            font-style: normal;
-            font-weight: 600;
-            color: #475569;
-        }
-
         .status-badge {
             padding: 0.25rem 0.75rem;
             border-radius: 4px;
@@ -154,6 +144,12 @@
             background-color: #dcfce7;
             color: #22c55e;
         }
+        
+        .loading-text {
+            text-align: center;
+            color: #64748b;
+            font-style: italic;
+        }
     </style>
 </head>
 <body>
@@ -162,7 +158,7 @@
         <h1>Convention Hall Booking System</h1>
         <div>
             <a href="index.html" class="nav-btn">Home</a>
-            <button onclick="resetToToday()" class="nav-btn">Reset to Today</button>
+            <button onclick="resetForm()" class="nav-btn">Reset</button>
         </div>
     </header>
 
@@ -173,7 +169,7 @@
         </div>
 
         <div class="date-display-banner" id="current-date-banner">
-            Showing Schedule for: Loading...
+            Please select a date to view availability schedule.
         </div>
 
         <div id="availability-container">
@@ -181,69 +177,114 @@
     </div>
 
     <script>
-        // Static configuration structure simulating spreadsheet mapping
-        const conventionVenues = [
-            {
-                name: "HY ONE (Vattinagulapally)",
-                halls: [
-                    { name: "HY 1 FULL (2000 Pac)", slot: "09:00 AM - 03:00 PM", defaultBooked: true },
-                    { name: "HY 1 FULL (2000 Pac)", slot: "04:00 PM - 10:00 PM", defaultBooked: false }
-                ]
-            },
-            {
-                name: "Grand Palace Convention",
-                halls: [
-                    { name: "Main Royal Hall (1500 Pac)", slot: "08:00 AM - 04:00 PM", defaultBooked: false },
-                    { name: "Imperial Suite (500 Pac)", slot: "10:00 AM - 02:00 PM", defaultBooked: true }
-                ]
-            },
-            {
-                name: "Metro Celebration Hub",
-                halls: [
-                    { name: "Premium Banquet (1000 Pac)", slot: "11:00 AM - 11:00 PM", defaultBooked: false }
-                ]
-            }
+        // Master definition of all tracked properties mapped from form setups
+        const masterVenues = [
+            { name: "HY ONE (Vattinagulapally)", halls: ["HY 1 FULL (2000 Pac)"] },
+            { name: "Grand Palace Convention", halls: ["Main Royal Hall (1500 Pac)", "Imperial Suite (500 Pac)"] },
+            { name: "Metro Celebration Hub", halls: ["Premium Banquet (1000 Pac)"] }
         ];
 
-        // Format dates into human-readable views
+        // Google Sheet TSV/CSV Public Export target mapping URL
+        const SPREADSHEET_ID = '1d1p4yzhK-nYB5qn7gmzDu0-YHiRPARAmXK_mSYzeDj4';
+        const G_SHEET_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv`;
+
         function formatDateString(dateStr) {
+            if (!dateStr) return "";
             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             const dateObj = new Date(dateStr);
             return dateObj.toLocaleDateString('en-US', options);
         }
 
-        // Fired automatically when a user picks a different date
-        function handleDateChange(selectedDate) {
-            if (!selectedDate) return;
+        async function handleDateChange(selectedDate) {
+            if (!selectedDate) {
+                clearDisplay();
+                return;
+            }
 
-            // 1. Update Layout Banners
             document.getElementById('current-date-banner').innerText = "Showing Schedule for: " + formatDateString(selectedDate);
-            
-            // 2. Render all dynamic convention boxes based on the chosen date
-            updateAvailabilityData(selectedDate);
+            const container = document.getElementById('availability-container');
+            container.innerHTML = '<div class="loading-text">Fetching current live registry availability...</div>';
+
+            try {
+                // Fetch direct CSV matrix output data from Google Sheet Form Responses
+                const response = await fetch(G_SHEET_URL);
+                const csvText = await response.text();
+                const bookedEntries = parseSheetCSV(csvText);
+
+                // Filter sheet rows targeting selected date match
+                const activeBookingsOnDate = bookedEntries.filter(entry => entry.date === selectedDate);
+                
+                renderAvailabilityMatrix(activeBookingsOnDate);
+            } catch (error) {
+                console.error("Error reading GSheet records:", error);
+                // Graceful fallback to structural generation logic mapping statuses to "Available" if offline
+                renderAvailabilityMatrix([]);
+            }
         }
 
-        function updateAvailabilityData(date) {
-            const container = document.getElementById('availability-container');
-            container.innerHTML = ""; // Clear out previous list completely
+        // Standard CSV Parser converting Google Sheets structural text rows into explicit arrays
+        function parseSheetCSV(text) {
+            const lines = text.split('\n');
+            const records = [];
+            
+            // Start iterating past header row index
+            for (let i = 1; i < lines.length; i++) {
+                if (!lines[i].trim()) continue;
+                
+                // Matches standard comma separation clearing out raw quotation encapsulations
+                const entryRow = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(val => val.replace(/^"|"$/g, '').trim());
+                
+                if (entryRow.length >= 4) {
+                    // Normalize standard Sheet raw date entries (Transforms matching structures into standardized YYYY-MM-DD formats)
+                    let explicitDate = rawDateNormalize(entryRow[1]); 
+                    
+                    records.push({
+                        timestamp: entryRow[0],
+                        date: explicitDate,
+                        venueName: entryRow[2],
+                        hallType: entryRow[3]
+                    });
+                }
+            }
+            return records;
+        }
 
-            conventionVenues.forEach(venue => {
+        function rawDateNormalize(dateStr) {
+            if(!dateStr) return "";
+            // Handle cross platform conversions (e.g., matching MM/DD/YYYY to HTML5 standards YYYY-MM-DD)
+            try {
+                const parts = dateStr.split(/[-/]/);
+                if(parts[0].length === 4) return `${parts[0]}-${parts[1].padStart(2,'0')}-${parts[2].padStart(2,'0')}`;
+                if(parts[2] && parts[2].length === 4) return `${parts[2]}-${parts[0].padStart(2,'0')}-${parts[1].padStart(2,'0')}`;
+            } catch(e) {}
+            return dateStr;
+        }
+
+        function renderAvailabilityMatrix(bookedItems) {
+            const container = document.getElementById('availability-container');
+            container.innerHTML = ""; 
+
+            masterVenues.forEach(venue => {
                 let venueCard = document.createElement('div');
                 venueCard.className = 'venue-card';
                 
                 let htmlContent = `<h2 class="venue-title">${venue.name}</h2>`;
                 
                 venue.halls.forEach(hall => {
-                    // Logic variation: You can mock availability changes depending on date input here
-                    const isBooked = hall.defaultBooked; 
-                    const statusText = isBooked ? "Booked" : "Available";
-                    const statusClass = isBooked ? "status-booked" : "status-available";
+                    // Check if entry matching specific venue and hall combination is inside Google Sheet bookings array
+                    const structuralMatch = bookedItems.some(booking => 
+                        booking.venueName.toLowerCase() === venue.name.toLowerCase() && 
+                        booking.hallType.toLowerCase() === hall.toLowerCase()
+                    );
+
+                    // If no sheet input match exists for this combination, cleanly fallback to "Available"
+                    const statusText = structuralMatch ? "Booked" : "Available";
+                    const statusClass = structuralMatch ? "status-booked" : "status-available";
 
                     htmlContent += `
                         <div class="hall-row">
                             <div class="hall-info">
-                                <strong>Hall Type:</strong> <span>${hall.name}</span><br>
-                                <small>Time Slot: ${hall.slot}</small>
+                                <strong>Hall Type:</strong> <span>${hall}</span>
                             </div>
                             <span class="status-badge ${statusClass}">${statusText}</span>
                         </div>
@@ -255,19 +296,15 @@
             });
         }
 
-        function resetToToday() {
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('booking-date').value = today;
-            handleDateChange(today);
+        function clearDisplay() {
+            document.getElementById('current-date-banner').innerText = "Please select a date to view availability schedule.";
+            document.getElementById('availability-container').innerHTML = "";
         }
 
-        // Initialize script with page execution state
-        window.onload = function() {
-            // Checks user's current environment system calendar date seamlessly
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('booking-date').value = today;
-            handleDateChange(today);
-        };
+        function resetForm() {
+            document.getElementById('booking-date').value = "";
+            clearDisplay();
+        }
     </script>
 
 </body>
