@@ -4,183 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Convention Hall Booking</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f8fafc;
-            margin: 0;
-            padding: 0;
-            color: #1e293b;
-        }
-
-        /* Header Styles */
-        .header {
-            background-color: #0f172a;
-            color: #ffffff;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            margin: 0;
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .user-profile {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .avatar {
-            width: 40px;
-            height: 40px;
-            background-color: #f59e0b;
-            color: #0f172a;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 18px;
-        }
-
-        .signout-btn {
-            background-color: transparent;
-            border: 1px solid #cbd5e1;
-            color: #ffffff;
-            padding: 8px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .signout-btn:hover {
-            background-color: #ffffff;
-            color: #0f172a;
-        }
-
-        /* Banner Styles */
-        .banner {
-            background-color: #0f172a;
-            color: #ffffff;
-            text-align: center;
-            padding: 40px 20px;
-            border-bottom: 5px solid #f59e0b;
-        }
-
-        .banner h2 {
-            margin: 0;
-            font-size: 36px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        /* Dashboard Grid Layout */
-        .dashboard-container {
-            max-width: 1200px;
-            margin: 40px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 30px;
-        }
-
-        /* Card Link Reset */
-        .card-link {
-            text-decoration: none;
-            color: inherit;
-            display: block;
-        }
-
-        /* Card Styles */
-        .card {
-            background-color: #ffffff;
-            border-radius: 12px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            padding: 40px 30px;
-            text-align: center;
-            transition: transform 0.2s, box-shadow 0.2s;
-            cursor: pointer;
-            border: 1px solid #e2e8f0;
-            height: 100%;
-            box-sizing: border-box;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: #cbd5e1;
-        }
-
-        .card-icon {
-            font-size: 40px;
-            color: #0f172a;
-            margin-bottom: 20px;
-        }
-
-        .card h3 {
-            margin: 0 0 10px 0;
-            font-size: 22px;
-            color: #0f172a;
-        }
-
-        .card p {
-            margin: 0;
-            color: #64748b;
-            font-size: 15px;
-            line-height: 1.5;
-        }
-    </style>
 </head>
-<body>
+<body class="bg-gray-100 font-sans min-h-screen flex flex-col">
 
-    <div class="header">
-        <h1>Sriman Software Solutions</h1>
-        <div class="user-profile">
-            <div class="avatar">S</div>
-            <span>srimansoftwaresolutions@gmail.com</span>
-            <button class="signout-btn">Sign Out</button>
+    <header class="bg-[#0b132b] text-white p-4 shadow-md">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="text-xl font-bold tracking-wide text-center sm:text-left">
+                Sriman Software Solutions
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-[#1c2541] px-4 py-2 rounded-full border border-gray-700">
+                    <span class="bg-amber-500 text-[#0b132b] w-8 h-8 rounded-full flex items-center justify-center font-bold">S</span>
+                    <span class="text-sm font-medium text-gray-300 hidden md:inline">srimansoftwaresolutions@gmail.com</span>
+                </div>
+                <button class="border border-gray-400 hover:bg-white hover:text-[#0b132b] transition-colors duration-200 text-xs px-4 py-2 rounded-full font-semibold">
+                    Sign Out
+                </button>
+            </div>
         </div>
-    </div>
+    </header>
 
-    <div class="banner">
-        <h2>Convention Hall Booking System</h2>
-    </div>
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-12">
+        <div class="bg-[#1c2541] rounded-lg shadow-xl p-8 mb-12 text-center border-b-4 border-amber-500">
+            <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                Convention Hall Booking System
+            </h1>
+        </div>
 
-    <div class="dashboard-container">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <a href="overview.html" class="block bg-white p-8 rounded-xl shadow-md border border-gray-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group text-center">
+                <div class="text-4xl text-[#1c2541] mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-calendar-days"></i>
+                </div>
+                <h2 class="text-xl font-bold text-[#0b132b] mb-2">Overview</h2>
+                <p class="text-gray-500 text-sm">3 Months Calendar view</p>
+            </a>
 
-        <a href="calendar-view.html" class="card-link">
-            <div class="card">
-                <i class="fas fa-calendar-alt card-icon"></i>
-                <h3>Overview</h3>
-                <p>3 Months Calendar view</p>
-            </div>
-        </a>
+            <a href="date-check.html" class="block bg-white p-8 rounded-xl shadow-md border border-gray-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group text-center">
+                <div class="text-4xl text-[#1c2541] mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </div>
+                <h2 class="text-xl font-bold text-[#0b132b] mb-2">Date</h2>
+                <p class="text-gray-500 text-sm">Check availability for a specific date</p>
+            </a>
 
-        <a href="#" class="card-link">
-            <div class="card">
-                <i class="fas fa-search card-icon"></i>
-                <h3>Date</h3>
-                <p>Check availability for a specific date</p>
-            </div>
-        </a>
+            <a href="booking-form.html" class="block bg-white p-8 rounded-xl shadow-md border border-gray-200 hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 group text-center">
+                <div class="text-4xl text-[#1c2541] mb-4 group-hover:scale-110 transition-transform duration-300">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </div>
+                <h2 class="text-xl font-bold text-[#0b132b] mb-2">Booking Form</h2>
+                <p class="text-gray-500 text-sm">Create a New Booking here</p>
+            </a>
 
-        <a href="https://docs.google.com/forms/d/e/1FAIpQLScAbU6MNFu_TXwJPN_neUxXhkjos6u0a3tT2gNW1s4_3sr-HA/viewform" class="card-link">
-            <div class="card">
-                <i class="fas fa-edit card-icon"></i>
-                <h3>Booking Form</h3>
-                <p>Create a New Booking here</p>
-            </div>
-        </a>
+        </div>
+    </main>
 
-    </div>
+    <footer class="bg-gray-200 text-center py-4 text-xs text-gray-600 border-t border-gray-300">
+        &copy; 2026 Sriman Software Solutions. All rights reserved.
+    </footer>
 
 </body>
 </html>
