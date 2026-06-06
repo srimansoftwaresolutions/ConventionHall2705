@@ -73,9 +73,10 @@
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
             margin-bottom: 2rem;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 1rem;
+            gap: 0.5rem;
         }
 
         .search-card label {
@@ -83,10 +84,24 @@
         }
 
         .search-card input[type="date"] {
-            padding: 0.5rem;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
+            padding: 0.6rem 1rem;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
             font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-card input[type="date"]:focus {
+            border-color: var(--accent-color);
+        }
+
+        .date-display-banner {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            text-align: center;
         }
 
         .venue-card {
@@ -147,51 +162,112 @@
         <h1>Convention Hall Booking System</h1>
         <div>
             <a href="index.html" class="nav-btn">Home</a>
-            <button onclick="resetForm()" class="nav-btn active">Reset</button>
+            <button onclick="resetToToday()" class="nav-btn">Reset to Today</button>
         </div>
     </header>
 
     <div class="container">
         <div class="search-card">
             <label for="booking-date">Select Date from Calendar:</label>
-            <input type="date" id="booking-date" value="2026-06-06" onchange="handleDateChange(this.value)">
+            <input type="date" id="booking-date" onchange="handleDateChange(this.value)">
+        </div>
+
+        <div class="date-display-banner" id="current-date-banner">
+            Showing Schedule for: Loading...
         </div>
 
         <div id="availability-container">
-            
-            <div class="venue-card">
-                <h2 class="venue-title">HY ONE (Vattinagulapally)</h2>
-                
-                <div class="hall-row">
-                    <div class="hall-info">
-                        <strong>Hall Type:</strong> <span>HY 1 FULL (2000 Pac)</span><br>
-                        <small>Time Slot: 09:00 AM - 03:00 PM</small>
-                    </div>
-                    <span class="status-badge status-booked">Booked</span>
-                </div>
-
-                <div class="hall-row">
-                    <div class="hall-info">
-                        <strong>Hall Type:</strong> <span>HY 1 FULL (2000 Pac)</span><br>
-                        <small>Time Slot: 04:00 PM - 10:00 PM</small>
-                    </div>
-                    <span class="status-badge status-available">Available</span>
-                </div>
-            </div>
-
             </div>
     </div>
 
     <script>
-        function handleDateChange(selectedDate) {
-            console.log("Checking availability data for date: " + selectedDate);
-            // Dynamic check or spreadsheet data integration pipeline triggers here
+        // Static configuration structure simulating spreadsheet mapping
+        const conventionVenues = [
+            {
+                name: "HY ONE (Vattinagulapally)",
+                halls: [
+                    { name: "HY 1 FULL (2000 Pac)", slot: "09:00 AM - 03:00 PM", defaultBooked: true },
+                    { name: "HY 1 FULL (2000 Pac)", slot: "04:00 PM - 10:00 PM", defaultBooked: false }
+                ]
+            },
+            {
+                name: "Grand Palace Convention",
+                halls: [
+                    { name: "Main Royal Hall (1500 Pac)", slot: "08:00 AM - 04:00 PM", defaultBooked: false },
+                    { name: "Imperial Suite (500 Pac)", slot: "10:00 AM - 02:00 PM", defaultBooked: true }
+                ]
+            },
+            {
+                name: "Metro Celebration Hub",
+                halls: [
+                    { name: "Premium Banquet (1000 Pac)", slot: "11:00 AM - 11:00 PM", defaultBooked: false }
+                ]
+            }
+        ];
+
+        // Format dates into human-readable views
+        function formatDateString(dateStr) {
+            const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            const dateObj = new Date(dateStr);
+            return dateObj.toLocaleDateString('en-US', options);
         }
 
-        function resetForm() {
-            document.getElementById('booking-date').value = '2026-06-06';
-            handleDateChange('2026-06-06');
+        // Fired automatically when a user picks a different date
+        function handleDateChange(selectedDate) {
+            if (!selectedDate) return;
+
+            // 1. Update Layout Banners
+            document.getElementById('current-date-banner').innerText = "Showing Schedule for: " + formatDateString(selectedDate);
+            
+            // 2. Render all dynamic convention boxes based on the chosen date
+            updateAvailabilityData(selectedDate);
         }
+
+        function updateAvailabilityData(date) {
+            const container = document.getElementById('availability-container');
+            container.innerHTML = ""; // Clear out previous list completely
+
+            conventionVenues.forEach(venue => {
+                let venueCard = document.createElement('div');
+                venueCard.className = 'venue-card';
+                
+                let htmlContent = `<h2 class="venue-title">${venue.name}</h2>`;
+                
+                venue.halls.forEach(hall => {
+                    // Logic variation: You can mock availability changes depending on date input here
+                    const isBooked = hall.defaultBooked; 
+                    const statusText = isBooked ? "Booked" : "Available";
+                    const statusClass = isBooked ? "status-booked" : "status-available";
+
+                    htmlContent += `
+                        <div class="hall-row">
+                            <div class="hall-info">
+                                <strong>Hall Type:</strong> <span>${hall.name}</span><br>
+                                <small>Time Slot: ${hall.slot}</small>
+                            </div>
+                            <span class="status-badge ${statusClass}">${statusText}</span>
+                        </div>
+                    `;
+                });
+
+                venueCard.innerHTML = htmlContent;
+                container.appendChild(venueCard);
+            });
+        }
+
+        function resetToToday() {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-date').value = today;
+            handleDateChange(today);
+        }
+
+        // Initialize script with page execution state
+        window.onload = function() {
+            // Checks user's current environment system calendar date seamlessly
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-date').value = today;
+            handleDateChange(today);
+        };
     </script>
 
 </body>
