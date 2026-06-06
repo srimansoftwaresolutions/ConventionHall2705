@@ -4,161 +4,337 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Date Availability - Convention Hall</title>
-    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
-        .slot-booked { background-color: #fee2e2; color: #991b1b; border-left: 4px solid #ef4444; }
-        .slot-available { background-color: #f0fdf4; color: #166534; border-left: 4px solid #22c55e; }
-    </style>
-</head>
-<body class="bg-gray-100 font-sans antialiased">
-
-    <nav class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center shadow-md">
-        <h1 class="text-xl font-bold tracking-wide">Convention Hall Booking System</h1>
-        <div class="space-x-2">
-            <a href="#" class="px-4 py-2 border border-white rounded hover:bg-white hover:text-slate-900 transition-colors">Home</a>
-            <button onclick="resetForm()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded transition-colors">Reset</button>
-        </div>
-    </nav>
-    <div class="h-1 bg-amber-500"></div>
-
-    <main class="max-w-4xl mx-auto mt-10 px-4">
-        
-        <div class="bg-white rounded-xl shadow-md p-6 flex flex-col sm:flex-row items-center justify-center gap-4 border border-gray-200">
-            <label for="bookingDate" class="text-gray-700 font-medium text-lg">Select Date from Calendar:</label>
-            <input type="date" id="bookingDate" onchange="handleDateChange(this.value)" 
-                   class="border-2 border-gray-300 rounded-lg px-4 py-2 text-gray-700 focus:outline-none focus:border-amber-500 font-medium shadow-sm cursor-pointer">
-        </div>
-
-        <div id="statusMessage" class="text-center mt-6 text-gray-500 hidden">
-            <p class="animate-pulse">Fetching booking details from Google Forms...</p>
-        </div>
-
-        <div id="resultsContainer" class="mt-8 space-y-6">
-            </div>
-
-    </main>
-
-    <script>
-        // Replace this URL string with your actual deployed Google Apps Script Web App URL
-        const GOOGLE_SCRIPT_API_URL = "https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec";
-
-        // Fallback demo dataset structural blueprint matching your Google Form requirements
-        const fallbackDemoData = [
-            {
-                date: "2026-06-10",
-                conventionName: "Hyderabad Exhibition Center",
-                hallType: "Main Grand Hall (2000 Pax)",
-                slots: {
-                    "Morning": { status: "Booked", details: "HY 1 FULL" },
-                    "Evening": { status: "Available", details: "" },
-                    "Full Day": { status: "Booked", details: "Corporate Gala" }
-                }
-            }
-        ];
-
-        /**
-         * Triggers whenever a new date is picked via the HTML5 date picker calendar
-         */
-        async function handleDateChange(selectedDate) {
-            if (!selectedDate) return;
-
-            const resultsContainer = document.getElementById('resultsContainer');
-            const statusMessage = document.getElementById('statusMessage');
-            
-            resultsContainer.innerHTML = "";
-            statusMessage.classList.remove('hidden');
-
-            try {
-                // Attempting live data fetch from Google Sheets Web App
-                const response = await fetch(`${GOOGLE_SCRIPT_API_URL}?date=${selectedDate}`);
-                if (!response.ok) throw new Error("Network response wasn't smooth.");
-                
-                const data = await response.json();
-                renderAvailability(data, selectedDate);
-            } catch (error) {
-                console.warn("Using fallback structural demo data. Setup your Apps Script web app endpoint to stream live responses.");
-                
-                // Filtering fallback array structure for demonstration purposes
-                const matchedBookings = fallbackDemoData.filter(item => item.date === selectedDate);
-                renderAvailability(matchedBookings, selectedDate);
-            } finally {
-                statusMessage.classList.add('hidden');
-            }
+        :root {
+            --primary-color: #0b1528;
+            --accent-color: #ffa500;
+            --bg-light: #f4f6f9;
+            --card-bg: #ffffff;
+            --text-dark: #333333;
+            --text-muted: #666666;
+            --status-avail: #2ecc71;
+            --status-booked: #e74c3c;
         }
 
-        /**
-         * Dynamically parses structure and outputs:
-         * <Convention Name>
-         * <Hall Type>
-         * Followed by clean, time-slot itemized statuses
-         */
-        function renderAvailability(bookings, selectedDate) {
-            const resultsContainer = document.getElementById('resultsContainer');
-            
-            if (!bookings || bookings.length === 0) {
-                resultsContainer.innerHTML = `
-                    <div class="bg-emerald-50 text-emerald-800 p-6 rounded-xl border border-emerald-200 text-center shadow-sm">
-                        <p class="font-semibold text-lg">🎉 All Slots Available!</p>
-                        <p class="text-sm mt-1">No forms submitted for ${formatReadableDate(selectedDate)} yet.</p>
-                    </div>`;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-light);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+        }
+
+        /* Navbar Layout */
+        .navbar {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--accent-color);
+        }
+
+        .navbar h1 {
+            margin: 0;
+            font-size: 1.5rem;
+        }
+
+        .nav-buttons .btn {
+            background-color: transparent;
+            color: white;
+            border: 1px solid white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 4px;
+            margin-left: 10px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .nav-buttons .btn:hover {
+            background-color: white;
+            color: var(--primary-color);
+        }
+
+        .nav-buttons .btn-reset {
+            background-color: #34495e;
+            border-color: #34495e;
+        }
+
+        /* Container & Form Layout */
+        .container {
+            max-width: 1100px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .search-box {
+            background-color: var(--card-bg);
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .search-box label {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .search-box input[type="date"] {
+            padding: 10px 15px;
+            font-size: 1rem;
+            border: 1px solid #cccccc;
+            border-radius: 4px;
+            outline: none;
+        }
+
+        /* Dynamic Grid Layout */
+        .convention-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 25px;
+        }
+
+        /* Convention Box Styles */
+        .convention-box {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 20px;
+            border-top: 5px solid var(--accent-color);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .convention-header {
+            margin: 0 0 15px 0;
+            font-size: 1.4rem;
+            color: var(--primary-color);
+            border-bottom: 1px solid #eeeeee;
+            padding-bottom: 10px;
+        }
+
+        /* Hall Section Layout */
+        .hall-section {
+            background-color: #f9fbfd;
+            border: 1px solid #eef2f5;
+            border-radius: 6px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .hall-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .hall-title {
+            margin: 0 0 8px 0;
+            font-size: 1.05rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        /* Slots Layout */
+        .slots-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .slot-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px dashed #e2e8f0;
+            font-size: 0.95rem;
+        }
+
+        .slot-item:last-child {
+            border-bottom: none;
+        }
+
+        /* Status Pills */
+        .status-badge {
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            text-transform: capitalize;
+        }
+
+        .status-available {
+            background-color: #e8f8f0;
+            color: var(--status-avail);
+        }
+
+        .status-booked {
+            background-color: #fdedec;
+            color: var(--status-booked);
+        }
+
+        /* Info Messaging */
+        .message-box {
+            background-color: #eaf2f8;
+            border-left: 5px solid #2980b9;
+            padding: 15px;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 1.1rem;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="navbar">
+        <h1>Convention Hall Booking System</h1>
+        <div class="nav-buttons">
+            <a href="index.html" class="btn">Home</a>
+            <a href="#" onclick="window.location.reload();" class="btn btn-reset">Reset</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="search-box">
+            <label for="booking-date">Select Date from Calendar:</label>
+            <input type="date" id="booking-date" onchange="handleDateChange(this.value)">
+        </div>
+
+        <div id="convention-containers-wrapper" class="convention-grid">
+            <div class="message-box">Please select a date above to check current availability.</div>
+        </div>
+    </div>
+
+    <script>
+        // Set default input value to today's date on window load
+        window.addEventListener('DOMContentLoaded', () => {
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('booking-date').value = today;
+            handleDateChange(today);
+        });
+
+        // Event handler executing calculations on date selection change
+        async function handleDateChange(selectedDate) {
+            const wrapper = document.getElementById('convention-containers-wrapper');
+            if (!selectedDate) {
+                wrapper.innerHTML = '<div class="message-box">Please choose a valid date.</div>';
                 return;
             }
 
-            bookings.forEach(booking => {
-                let slotsHtml = "";
+            wrapper.innerHTML = '<div class="message-box">Fetching live schedules from G Sheet...</div>';
 
-                // Defined structural slots expected by conventional scheduling blocks
-                const standardSlots = booking.slots || {
-                    "Morning": { status: "Available", details: "" },
-                    "Evening": { status: "Available", details: "" },
-                    "Full Day": { status: "Available", details: "" }
-                };
+            try {
+                // 1. Fetching raw data array from your custom Google Sheet implementation
+                const sheetData = await fetchGoogleSheetData(selectedDate);
 
-                for (const [slotName, slotData] of Object.entries(standardSlots)) {
-                    const isBooked = slotData.status === "Booked";
-                    const statusClass = isBooked ? "slot-booked" : "slot-available";
-                    const badgeClass = isBooked ? "bg-red-200 text-red-800" : "bg-green-200 text-green-800";
-
-                    slotsHtml += `
-                        <div class="p-4 rounded-lg flex flex-col sm:flex-row justify-between items-start sm:items-center ${statusClass} transition-all">
-                            <div>
-                                <span class="font-bold tracking-wide block sm:inline-block w-28">${slotName}:</span>
-                                <span class="text-sm opacity-90">${isBooked ? `Reserved (${slotData.details})` : 'Open for reservations'}</span>
-                            </div>
-                            <span class="mt-2 sm:mt-0 px-3 py-1 rounded-full text-xs font-bold tracking-wider uppercase ${badgeClass}">
-                                ${slotData.status}
-                            </span>
-                        </div>
-                    `;
+                if (!sheetData || sheetData.length === 0) {
+                    wrapper.innerHTML = '<div class="message-box">🎉 All Slots Available! No reservations found for this date.</div>';
+                    return;
                 }
 
-                // Append matching requested layout format syntax strings cleanly
-                const cardHtml = `
-                    <div class="bg-white rounded-xl shadow-md border border-gray-200 overflow-hidden">
-                        <div class="bg-slate-800 text-white px-6 py-4">
-                            <h2 class="text-xl font-bold tracking-tight text-amber-400">${booking.conventionName}</h2>
-                            <p class="text-sm text-gray-300 mt-1 font-medium">${booking.hallType}</p>
-                        </div>
-                        <div class="p-6 space-y-3">
-                            <h3 class="text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">Time Slot Breakdown</h3>
-                            ${slotsHtml}
-                        </div>
-                    </div>
-                `;
-                resultsContainer.innerHTML += cardHtml;
-            });
+                // 2. Group records by "Convention Name"
+                const groupedByConvention = {};
+                sheetData.forEach(row => {
+                    const conventionName = row["Convention Name"] || "Unnamed Convention";
+                    if (!groupedByConvention[conventionName]) {
+                        groupedByConvention[conventionName] = [];
+                    }
+                    groupedByConvention[conventionName].push(row);
+                });
+
+                // Clear layout container to process updated nodes
+                wrapper.innerHTML = '';
+
+                // 3. Build HTML Modules dynamically per Convention Name
+                for (const conventionName in groupedByConvention) {
+                    
+                    const conventionBox = document.createElement('div');
+                    conventionBox.className = 'convention-box';
+
+                    // Heading Header Construction
+                    const header = document.createElement('h2');
+                    header.className = 'convention-header';
+                    header.textContent = conventionName;
+                    conventionBox.appendChild(header);
+
+                    // Sub-group rows under this specific Convention by "Hall Type"
+                    const groupedByHall = {};
+                    groupedByConvention[conventionName].forEach(row => {
+                        const hallType = row["Hall Type"] || "General Hall";
+                        if (!groupedByHall[hallType]) {
+                            groupedByHall[hallType] = [];
+                        }
+                        groupedByHall[hallType].push(row);
+                    });
+
+                    // 4. Build Hall Sections loop inside the parent Convention Box
+                    for (const hallType in groupedByHall) {
+                        const hallSection = document.createElement('div');
+                        hallSection.className = 'hall-section';
+
+                        const hallTitle = document.createElement('h3');
+                        hallTitle.className = 'hall-title';
+                        hallTitle.textContent = `Hall Type: ${hallType}`;
+                        hallSection.appendChild(hallTitle);
+
+                        const slotsList = document.createElement('ul');
+                        slotsList.className = 'slots-list';
+
+                        // Loop through slot details
+                        groupedByHall[hallType].forEach(slotInfo => {
+                            const listItem = document.createElement('li');
+                            listItem.className = 'slot-item';
+
+                            // Validate status structure - default fallback logic to "Available"
+                            let status = "Available";
+                            if (slotInfo["Status"] && slotInfo["Status"].trim() !== "") {
+                                status = slotInfo["Status"].trim();
+                            }
+
+                            const cleanStatusClass = status.toLowerCase() === 'booked' ? 'status-booked' : 'status-available';
+
+                            listItem.innerHTML = `
+                                <span><strong>Time Slot:</strong> ${slotInfo["Time Slot"] || 'N/A'}</span>
+                                <span class="status-badge ${cleanStatusClass}">${status}</span>
+                            `;
+                            slotsList.appendChild(listItem);
+                        });
+
+                        hallSection.appendChild(slotsList);
+                        conventionBox.appendChild(hallSection);
+                    }
+
+                    // Append completed parent element block to the view page grid wrapper
+                    wrapper.appendChild(conventionBox);
+                }
+
+            } catch (error) {
+                console.error("Error structuralizing sheet data processing: ", error);
+                wrapper.innerHTML = '<div class="message-box" style="color:red; background-color:#fce4d6;">Error loading data sheet configurations. Please try refreshing again.</div>';
+            }
         }
 
-        function formatReadableDate(dateString) {
-            const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            return new Date(dateString).toLocaleDateString(undefined, options);
-        }
-
-        function resetForm() {
-            document.getElementById('bookingDate').value = '';
-            document.getElementById('resultsContainer').value = '';
-            document.getElementById('resultsContainer').innerHTML = '';
-            document.getElementById('statusMessage').classList.add('hidden');
+        /**
+         * Placeholder Data Fetching Wrapper
+         * Connect this implementation step directly into your live operational backend / Google Apps Script macro Web App URL fetch block.
+         */
+        async function fetchGoogleSheetData(dateString) {
+            // REPLACE THIS mock structure setup below with your functional macro endpoint URL fetch operations
+            // Example: return fetch(`YOUR_APPS_SCRIPT_WEBAPP_URL?date=${dateString}`).then(res => res.json());
+            
+            return [
+                { "Convention Name": "Grand Palace Venue", "Hall Type": "Main AC Hall", "Time Slot": "09:00 AM - 03:00 PM", "Status": "Booked" },
+                { "Convention Name": "Grand Palace Venue", "Hall Type": "Main AC Hall", "Time Slot": "04:00 PM - 10:00 PM", "Status": "" }, // Should show Available
+                { "Convention Name": "Grand Palace Venue", "Hall Type": "Mini Hall", "Time Slot": "10:00 AM - 04:00 PM", "Status": "Booked" },
+                { "Convention Name": "Royal Orchid Centre", "Hall Type": "Open Lawn Area", "Time Slot": "05:00 PM - 11:00 PM", "Status": "Available" }
+            ];
         }
     </script>
 </body>
